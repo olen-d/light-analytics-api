@@ -17,8 +17,10 @@ export const options = {}
 export default async function (fastify, opts) {
   // Place here your custom code!
   fastify.register(fastifyAuth)
+  const originsAllowed = process.env.ORIGIN_ALLOWED.split(',')
+
   await fastify.register(cors, {
-    'origin': process.env.ORIGIN_ALLOWED
+    'origin': originsAllowed
   })
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
