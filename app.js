@@ -31,7 +31,7 @@ export default async function (fastify, opts) {
 
   const verifyKey = async( request, reply) => {
     try {
-      const { headers: { 'api-key': apiKey, host }, method } = request
+      const { headers: { 'api-key': apiKey }, hostname, method } = request
 
       if (!apiKey) {
         throw new Error('An API key must be supplied')
@@ -46,7 +46,7 @@ export default async function (fastify, opts) {
       } else {
         const { data: [{ scopes, domain }]} = result
         const re = new RegExp(`${domain}$`)
-        const isValidHost = re.test(host)
+        const isValidHost = re.test(hostname)
         if (isValidHost) {
           const crosswalk = {
             'GET': 'read',
@@ -57,7 +57,7 @@ export default async function (fastify, opts) {
             throw new Error(`${method} is not authorized`)
           }
         } else {
-          throw new Error(`${host} is not authorized`)
+          throw new Error(`${hostname} is not authorized`)
         }
       }
     } catch (error) {
