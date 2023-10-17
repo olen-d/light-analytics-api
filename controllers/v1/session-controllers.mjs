@@ -6,7 +6,8 @@ import { newSession } from '../../models/v1/session-models.mjs'
 async function addSession (request, reply) {
   try {
     const { _db } = this
-    const { body, ip: clientIp } = request
+    const { body, ip, headers } = request
+    const clientIp = headers['x-real-ip'] ? headers['x-real-ip'] : ip
     const trimmed = trimAll(body)
     const sanitized = sanitizeAll(trimmed)
   
