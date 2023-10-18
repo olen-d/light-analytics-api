@@ -1,6 +1,19 @@
 'use strict'
 
-import { createSession } from '../../services/v1/session-services.mjs'
+import { createSession, readVisitsCountTotal } from '../../services/v1/session-services.mjs'
+
+const getVisitsCountTotal = async (_db, info) => {
+  try {
+    const result = await readVisitsCountTotal(_db, info)
+
+    const status = result ? 'ok' : 'error'
+    const data = status === 'ok' ? { 'totalVisits': result } : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Sessopm Models Get Visits Count Total ${error}`)
+  }
+}
 
 const newSession = async (_db, info) => {
   try {
@@ -14,4 +27,4 @@ const newSession = async (_db, info) => {
   }
 }
 
-export { newSession }
+export { getVisitsCountTotal, newSession }

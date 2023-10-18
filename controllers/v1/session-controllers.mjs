@@ -1,7 +1,7 @@
 'use strict'
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
-import { newSession } from '../../models/v1/session-models.mjs'
+import { getVisitsCountTotal, newSession } from '../../models/v1/session-models.mjs'
 
 async function addSession (request, reply) {
   try {
@@ -48,4 +48,16 @@ async function addSession (request, reply) {
   }
 }
 
-export { addSession }
+async function readVisitsCountTotal (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getVisitsCountTotal(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Visits Count Total ${error}`)
+  }
+}
+
+export { addSession, readVisitsCountTotal }
