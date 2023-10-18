@@ -5,7 +5,6 @@ const createSession = async (_db, info) => {
     const {
       sessionId,
       sessionStartTime,
-      // sessionEndTime,
       clientIp,
       device,
       userAgent,
@@ -13,8 +12,6 @@ const createSession = async (_db, info) => {
       timezone,
       latency,
       pageLoad,
-      // landingPage,
-      // exitPage
     } = info
 
     const result = await _db.execute(
