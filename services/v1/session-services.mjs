@@ -24,4 +24,20 @@ const createSession = async (_db, info) => {
   }
 }
 
-export { createSession }
+const readVisitsCountTotal = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT COUNT(*) as count FROM sessions'
+    )
+
+    if (rows && rows.length > 0) {
+      const [{ count }] = rows
+      return count
+    } else {
+      return -99
+    }
+  } catch (error) {
+    throw new Error(`Session Services Read Visits Count Total ${error}`)
+  }
+}
+export { createSession, readVisitsCountTotal }
