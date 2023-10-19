@@ -40,4 +40,22 @@ const readVisitsCountTotal = async (_db, info) => {
     throw new Error(`Session Services Read Visits Count Total ${error}`)
   }
 }
-export { createSession, readVisitsCountTotal }
+
+const readVisitsCountUnique = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT COUNT(distinct client_ip) as count FROM sessions'
+    )
+
+    if (rows && rows.length > 0) {
+      const [{ count }] = rows
+      return count
+    } else {
+      return -99
+    }
+  } catch (error) {
+    throw new Error(`Session Services Read Visits Count Unique ${error}`)
+  }
+}
+
+export { createSession, readVisitsCountTotal, readVisitsCountUnique }
