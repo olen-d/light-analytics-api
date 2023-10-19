@@ -24,6 +24,24 @@ const createSession = async (_db, info) => {
   }
 }
 
+
+const readSinglePageSessionsCountTotal = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'select count(*) as count from (select count(*) from (select session_id, route from pages group by session_id, route) as TT GROUP BY session_id HAVING count(*) = 1) as ONLY_ONCE'
+    )
+
+    if (rows && rows.length > 0) {
+      const [{ count }] = rows
+      return count
+    } else {
+      return -99
+    }
+  } catch (error) {
+    throw new Error(`Session Services Read Single Page Sessions Total ${error}`)
+  }
+}
+
 const readVisitsCountTotal = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -58,4 +76,4 @@ const readVisitsCountUnique = async (_db, info) => {
   }
 }
 
-export { createSession, readVisitsCountTotal, readVisitsCountUnique }
+export { createSession, readSinglePageSessionsCountTotal, readVisitsCountTotal, readVisitsCountUnique }
