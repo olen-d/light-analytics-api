@@ -1,7 +1,7 @@
 'use strict'
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
-import { getVisitsCountTotal, getVisitsCountUnique, newSession } from '../../models/v1/session-models.mjs'
+import { getSinglePageSessionsCountTotal, getVisitsCountTotal, getVisitsCountUnique, newSession } from '../../models/v1/session-models.mjs'
 
 async function addSession (request, reply) {
   try {
@@ -48,6 +48,18 @@ async function addSession (request, reply) {
   }
 }
 
+async function readSinglePageSessionsCountTotal (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getSinglePageSessionsCountTotal(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Single Page Sessions Count Total ${error}`)
+  }
+}
+
 async function readVisitsCountTotal (request, reply) {
   try {
     const { _db } = this
@@ -72,4 +84,4 @@ async function readVisitsCountUnique (request, reply) {
   }
 }
 
-export { addSession, readVisitsCountTotal, readVisitsCountUnique }
+export { addSession, readSinglePageSessionsCountTotal, readVisitsCountTotal, readVisitsCountUnique }
