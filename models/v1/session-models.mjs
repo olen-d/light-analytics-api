@@ -1,6 +1,6 @@
 'use strict'
 
-import { createSession, readVisitsCountTotal } from '../../services/v1/session-services.mjs'
+import { createSession, readVisitsCountTotal, readVisitsCountUnique } from '../../services/v1/session-services.mjs'
 
 const getVisitsCountTotal = async (_db, info) => {
   try {
@@ -11,7 +11,20 @@ const getVisitsCountTotal = async (_db, info) => {
 
     return { status, data }
   } catch (error) {
-    throw new Error(`Sessopm Models Get Visits Count Total ${error}`)
+    throw new Error(`Session Models Get Visits Count Total ${error}`)
+  }
+}
+
+const getVisitsCountUnique = async (_db, info) => {
+  try {
+    const result = await readVisitsCountUnique(_db, info)
+
+    const status = result ? 'ok' : 'error'
+    const data = status === 'ok' ? { 'uniqueVisits': result } : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Session Models Get Visits Count Unique ${error}`)
   }
 }
 
@@ -27,4 +40,4 @@ const newSession = async (_db, info) => {
   }
 }
 
-export { getVisitsCountTotal, newSession }
+export { getVisitsCountTotal, getVisitsCountUnique, newSession }

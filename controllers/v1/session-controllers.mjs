@@ -1,7 +1,7 @@
 'use strict'
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
-import { getVisitsCountTotal, newSession } from '../../models/v1/session-models.mjs'
+import { getVisitsCountTotal, getVisitsCountUnique, newSession } from '../../models/v1/session-models.mjs'
 
 async function addSession (request, reply) {
   try {
@@ -60,4 +60,16 @@ async function readVisitsCountTotal (request, reply) {
   }
 }
 
-export { addSession, readVisitsCountTotal }
+async function readVisitsCountUnique (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getVisitsCountUnique(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Visits Count Unique ${error}`)
+  }
+}
+
+export { addSession, readVisitsCountTotal, readVisitsCountUnique }
