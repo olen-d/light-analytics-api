@@ -48,6 +48,25 @@ async function addSession (request, reply) {
   }
 }
 
+async function readBounceRateTotal (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const resultSinglePage = await getSinglePageSessionsCountTotal(_db, info)
+    const resultVisits = await getVisitsCountTotal(_db, info)
+
+    const { data: { totalSinglePageSessions }, } = resultSinglePage
+    const { data: { totalVisits} , } = resultVisits
+
+    const bounceRate = totalSinglePageSessions / totalVisits
+
+    reply.send({ 'status': 'ok' , 'data': { bounceRate }})
+  } catch (error) {
+    throw new Error(`Session Controllers Read Bounce Rate Total ${error}`)
+  }
+}
+
 async function readSinglePageSessionsCountTotal (request, reply) {
   try {
     const { _db } = this
@@ -84,4 +103,10 @@ async function readVisitsCountUnique (request, reply) {
   }
 }
 
-export { addSession, readSinglePageSessionsCountTotal, readVisitsCountTotal, readVisitsCountUnique }
+export {
+  addSession,
+  readBounceRateTotal,
+  readSinglePageSessionsCountTotal,
+  readVisitsCountTotal,
+  readVisitsCountUnique
+}
