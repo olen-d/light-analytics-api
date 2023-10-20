@@ -6,10 +6,9 @@ const getSinglePageSessionsCountTotal = async (_db, info) => {
   try {
     const result = await readSinglePageSessionsCountTotal(_db, info)
 
-    const status = result ? 'ok' : 'error'
-    const data = status === 'ok' ? { 'totalSinglePageSessions': result } : null
+    const data = { 'totalSinglePageSessions': result }
 
-    return { status, data }
+    return { 'status': 'ok', data }
   } catch (error) {
     throw new Error(`Session Models Get Single Page Sessions Count Total ${error}`)
   }
@@ -19,10 +18,9 @@ const getVisitsCountTotal = async (_db, info) => {
   try {
     const result = await readVisitsCountTotal(_db, info)
 
-    const status = result ? 'ok' : 'error'
-    const data = status === 'ok' ? { 'totalVisits': result } : null
+    const data =  { 'totalVisits': result }
 
-    return { status, data }
+    return { 'status': 'ok', data }
   } catch (error) {
     throw new Error(`Session Models Get Visits Count Total ${error}`)
   }
@@ -31,11 +29,9 @@ const getVisitsCountTotal = async (_db, info) => {
 const getVisitsCountUnique = async (_db, info) => {
   try {
     const result = await readVisitsCountUnique(_db, info)
+    const data = { 'uniqueVisits': result }
 
-    const status = result ? 'ok' : 'error'
-    const data = status === 'ok' ? { 'uniqueVisits': result } : null
-
-    return { status, data }
+    return { 'status': 'ok', data }
   } catch (error) {
     throw new Error(`Session Models Get Visits Count Unique ${error}`)
   }
