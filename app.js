@@ -22,11 +22,17 @@ export default async function (fastify, opts) {
   await fastify.register(cors, {
     'origin': originsAllowed
   })
-  const connection = await mysql.createConnection({
+  const pool = await mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    maxIdle: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
   })
 
   const verifyKey = async( request, reply) => {
@@ -38,7 +44,7 @@ export default async function (fastify, opts) {
         throw new Error('An API key must be supplied')
       }
 
-      const _db = connection
+      const _db = pool
       const hashedKey = hashKey(apiKey)
   
       const result = await geteKeyDomainScope(_db, { hashedKey })
@@ -66,7 +72,7 @@ export default async function (fastify, opts) {
     }
   }
 
-  fastify.decorate('_db', connection)
+  fastify.decorate('_db', pool)
   fastify.decorate('verifyAPIKey', verifyKey)
 
   // Do not touch the following lines
