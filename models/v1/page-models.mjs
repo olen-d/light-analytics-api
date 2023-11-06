@@ -1,6 +1,6 @@
 'use strict'
 
-import { createPage, readRoutesByTotalTime } from '../../services/v1/page-services.mjs'
+import { createPage, readRoutesByTotalTime, readRoutesByTotalViews } from '../../services/v1/page-services.mjs'
 
 const getRoutesByTotalTime = async (_db, info) => {
   try {
@@ -11,6 +11,18 @@ const getRoutesByTotalTime = async (_db, info) => {
     return { status, data }
   } catch (error) {
     throw new Error(`Page Models Get Routes by Total Time ${error}`)
+  }
+}
+
+const getRoutesByTotalViews= async (_db, info) => {
+  try {
+    const result = await readRoutesByTotalViews(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Routes by Total Views ${error}`)
   }
 }
 
@@ -26,4 +38,4 @@ const newPage = async (_db, info) => {
   }
 }
 
-export { getRoutesByTotalTime, newPage }
+export { getRoutesByTotalTime, getRoutesByTotalViews, newPage }
