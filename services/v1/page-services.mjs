@@ -26,6 +26,18 @@ const readRoutesByTotalTime = async (_db, info) => {
   }
 }
 
+const readRoutesByTotalTimeViews = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT route, SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages GROUP BY route ORDER BY total_time DESC'
+    )
+
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error(`Page Services Read Routes by Total Time Views ${error}`)
+  }
+}
+
 const readRoutesByTotalViews = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -38,4 +50,4 @@ const readRoutesByTotalViews = async (_db, info) => {
   }
 }
 
-export { createPage, readRoutesByTotalTime, readRoutesByTotalViews }
+export { createPage, readRoutesByTotalTime, readRoutesByTotalTimeViews, readRoutesByTotalViews }
