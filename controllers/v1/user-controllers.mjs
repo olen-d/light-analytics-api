@@ -1,5 +1,3 @@
-'use strict'
-
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 
 import { newUser } from '../../models/v1/user-models.mjs'

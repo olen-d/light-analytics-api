@@ -1,5 +1,3 @@
-'use strict'
-
 const createUser = async (_db, info) => {
   try {
     const {
@@ -51,4 +49,38 @@ const readUserPasswordHash = async (_db, info) => {
   }
 }
 
-export { createUser, readUserByUsername, readUserPasswordHash }
+const readUserRole = async (_db, info) => {
+  try {
+    const { username } = info
+
+    const [rows, fields] = await _db.execute(
+      'SELECT id, role FROM users WHERE username = ? LIMIT 1',
+      [username]
+    )
+    return (rows && rows.length > 0) ? rows : false
+  } catch (error) {
+    throw new Error(`User Services Read User Role ${error}`)
+  }
+}
+
+const readUserRoleById = async (_db, info) => {
+  try {
+    const { userId } = info
+
+    const [rows, fields] = await _db.execute(
+      'SELECT role FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    )
+    return (rows && rows.length > 0) ? rows : false
+  } catch (error) {
+    throw new Error(`User Services Read User Role By Id ${error}`)
+  }
+}
+
+export {
+  createUser,
+  readUserByUsername,
+  readUserPasswordHash,
+  readUserRole,
+  readUserRoleById
+}
