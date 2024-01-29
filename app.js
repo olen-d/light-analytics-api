@@ -3,6 +3,7 @@
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import AutoLoad from '@fastify/autoload'
+import fastifyCookie from '@fastify/cookie'
 import cors from '@fastify/cors'
 import fastifyAuth from '@fastify/auth'
 
@@ -16,10 +17,12 @@ export const options = {}
 
 export default async function (fastify, opts) {
   // Place here your custom code!
+  fastify.register(fastifyCookie)
   fastify.register(fastifyAuth)
   const originsAllowed = process.env.ORIGIN_ALLOWED.split(',')
 
   await fastify.register(cors, {
+    'credentials': true,
     'origin': originsAllowed
   })
   const pool = await mysql.createPool({
@@ -57,7 +60,8 @@ export default async function (fastify, opts) {
         if (isValidHost) {
           const crosswalk = {
             'GET': 'read',
-            'POST': 'write'
+            'POST': 'write',
+            'PUT': 'write'
           }
 
           if (scopes.indexOf(crosswalk[method]) === -1) {
