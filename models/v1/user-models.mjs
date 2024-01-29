@@ -1,10 +1,17 @@
-'use strict'
-
-import { createUser } from '../../services/v1/user-services.mjs'
+import { createUser, readUserRoleById } from '../../services/v1/user-services.mjs'
 import { hashPassword } from '../../services/v1/bcrypt-services.mjs'
 import { processValidations } from '../../services/v1/process-validation-services.mjs'
 import { validateEmailAddress, validateFirstName, validateLastName } from '../../services/v1/validate-services.mjs'
 import { validatePassword, validateRole, validateUsernameUnique } from '../../services/v1/validate-user-services.mjs'
+
+const getUserRoleById = async (_db, info) => {
+  try {
+    const data = await readUserRoleById(_db, info)
+    return { status: 'ok', data }
+  } catch (error) {
+    throw new Error(`User Models Get User Role By Id ${error}`)
+  }
+}
 
 const newUser = async (_db, info) => {
   try {
@@ -63,4 +70,4 @@ const newUser = async (_db, info) => {
   }
 }
 
-export { newUser }
+export { getUserRoleById, newUser }
