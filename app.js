@@ -40,8 +40,8 @@ export default async function (fastify, opts) {
 
   const verifyKey = async( request, reply) => {
     try {
-      const { headers: { 'api-key': apiKey, origin }, method } = request
-      const hostname = origin.replace(/^https?\:\/\//i, '')
+      const { headers: { 'api-key': apiKey, origin, host }, method } = request
+      const hostname = origin ? origin.replace(/^https?\:\/\//i, '') : host
 
       if (!apiKey) {
         throw new Error('An API key must be supplied')
