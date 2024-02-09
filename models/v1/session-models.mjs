@@ -1,6 +1,12 @@
 'use strict'
 
-import { createSession, readSinglePageSessionsCountTotal, readVisitsCountTotal, readVisitsCountUnique } from '../../services/v1/session-services.mjs'
+import {
+  createSession,
+  readSinglePageSessionsCountTotal,
+  readVisitsCountTotal,
+  readVisitsCountTotalByDay,
+  readVisitsCountUnique
+} from '../../services/v1/session-services.mjs'
 
 const getSinglePageSessionsCountTotal = async (_db, info) => {
   try {
@@ -23,6 +29,18 @@ const getVisitsCountTotal = async (_db, info) => {
     return { 'status': 'ok', data }
   } catch (error) {
     throw new Error(`Session Models Get Visits Count Total ${error}`)
+  }
+}
+
+const getVisitsCountTotalByDay = async (_db, info) => {
+  try {
+    const result = await readVisitsCountTotalByDay(_db, info)
+
+    const data =  { 'totalVisitsByDay': result }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Session Models Get Visits Count Total By Day ${error}`)
   }
 }
 
@@ -49,4 +67,10 @@ const newSession = async (_db, info) => {
   }
 }
 
-export { getSinglePageSessionsCountTotal, getVisitsCountTotal, getVisitsCountUnique, newSession }
+export {
+  getSinglePageSessionsCountTotal,
+  getVisitsCountTotal,
+  getVisitsCountTotalByDay,
+  getVisitsCountUnique,
+  newSession
+}
