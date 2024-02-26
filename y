@@ -1,9 +1,0 @@
-DB_HOST=localhost
-DB_NAME=la_nocargravelcc
-DB_PASSWORD=Dv5076ynH!
-DB_USERNAME=la_nocargravelcc
-JWT_ALGORITHM=RS256
-JWT_PRIVATE_KEY_PEM_FILE=.config/jwt-private-key.pem
-JWT_PUBLIC_KEY_PEM_FILE=.config/jwt-public-key.pem
-ORIGIN_ALLOWED=http://localhost:5173,http://localhost:8080,http://localhost:8090
-PORT=9000
