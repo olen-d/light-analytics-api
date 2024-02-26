@@ -61,14 +61,31 @@ const readVisitsCountTotal = async (_db, info) => {
 
 const readVisitsCountTotalByDay = async(_db, info) => {
   try {
-    const [rows, fields] = await _db.execute(
-      'SELECT DATE_FORMAT(created_at, \'%Y-%m-%d\') AS day, COUNT(*) AS count FROM sessions GROUP BY day'
-    )
-
-    if (rows && rows.length > 0) {
-      return rows
+    if (info === 'all') {
+      const [rows, fields] = await _db.execute(
+        'SELECT DATE_FORMAT(created_at, \'%Y-%m-%d\') AS day, COUNT(*) AS count FROM sessions GROUP BY day'
+      )
+      if (rows && rows.length > 0) {
+        return rows
+      } else {
+        return -99
+      }
     } else {
-      return -99
+      const { type } = info
+      if (type === 'dates') {
+        const { endDate, startDate } = info
+
+        const [rows, fields] = await _db.execute(
+          'SELECT DATE_FORMAT(created_at, \'%Y-%m-%d\') AS day, COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?) GROUP BY day',
+          [startDate, endDate]
+        )
+
+        if (rows && rows.length > 0) {
+          return rows
+        } else {
+          return -99
+        }
+      }
     }
   } catch (error) {
     throw new Error(`Session Services Read Visits Count Total By Day ${error}`)
