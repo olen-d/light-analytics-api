@@ -3,10 +3,10 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import { getRoutesByTotalTime, getRoutesByTotalTimeViews, getRoutesByTotalViews, newPage } from '../../models/v1/page-models.mjs'
 
-async function addPage (req, reply) {
+async function addPage (request, reply) {
   try {
     const { _db } = this
-    const { body } = req
+    const { body } = request
     const trimmed = trimAll(body)
     const sanitized = sanitizeAll(trimmed)
   
@@ -34,7 +34,7 @@ async function addPage (req, reply) {
   }
 }
 
-async function readRoutesByTotalTime (req, reply) {
+async function readRoutesByTotalTime (request, reply) {
   try {
     const { _db } = this
     const info = 'all'
@@ -46,11 +46,17 @@ async function readRoutesByTotalTime (req, reply) {
   }
 }
 
-async function readRoutesByTotalTimeViews (req, reply) {
+async function readRoutesByTotalTimeViews (request, reply) {
   try {
     const { _db } = this
-    const info = 'all'
 
+    let info = null
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
     const result = await getRoutesByTotalTimeViews(_db, info)
     reply.send(result)
   } catch (error) {
@@ -58,7 +64,7 @@ async function readRoutesByTotalTimeViews (req, reply) {
   }
 }
 
-async function readRoutesByTotalViews (req, reply) {
+async function readRoutesByTotalViews (request, reply) {
   try {
     const { _db } = this
     const info = 'all'
