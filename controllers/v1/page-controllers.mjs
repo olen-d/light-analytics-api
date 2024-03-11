@@ -52,6 +52,7 @@ async function readPagesByTotalTimeViews (request, reply) {
   }
 }
 
+async function readRoutesByTotalTime (req, reply) {
   try {
     const { _db } = this
     const info = 'all'
