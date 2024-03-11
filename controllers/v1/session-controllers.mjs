@@ -63,7 +63,7 @@ async function readBounceRateTotal (request, reply) {
     const resultVisits = await getVisitsCountTotal(_db, info)
 
     const { data: { totalSinglePageSessions }, } = resultSinglePage
-    const { data: { totalVisits} , } = resultVisits
+    const { data: { totalVisits } , } = resultVisits
 
     const bounceRate = totalSinglePageSessions / totalVisits
 

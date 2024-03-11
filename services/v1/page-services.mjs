@@ -14,6 +14,17 @@ const createPage = async (_db, info) => {
   }
 }
 
+const readPagesByTotalTimeViews = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages'
+    )
+
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error(`Page Services Read Pages By Total Time Views ${error}`)
+  }
+}
 const readRoutesByTotalTime = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -68,4 +79,10 @@ const readRoutesByTotalViews = async (_db, info) => {
   }
 }
 
-export { createPage, readRoutesByTotalTime, readRoutesByTotalTimeViews, readRoutesByTotalViews }
+export {
+  createPage,
+  readPagesByTotalTimeViews,
+  readRoutesByTotalTime,
+  readRoutesByTotalTimeViews,
+  readRoutesByTotalViews
+}
