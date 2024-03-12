@@ -13,7 +13,7 @@ const getViewsCountTimeByDay = async (_db, info) => {
   try {
     const result = await readViewsCountTimeByDay(_db, info)
     const status = await result != -99 ? 'ok' : 'error'
-    const data = status === 'ok' ? result : null
+    const data = status === 'ok' ? { totalViewsByDay: result } : null
 
     return { status, data }
   } catch (error) {
