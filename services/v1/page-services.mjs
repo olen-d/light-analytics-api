@@ -16,11 +16,29 @@ const createPage = async (_db, info) => {
 
 const readPagesByTotalTimeViews = async (_db, info) => {
   try {
-    const [rows, fields] = await _db.execute(
-      'SELECT SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages'
-    )
+    if (info ==='all') {
+      const [rows, fields] = await _db.execute(
+        'SELECT SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages'
+      )
+  
+      return rows && rows.length > 0 ? rows : -99
+    } else {
+      const { type } = info
+      if (type === 'dates') {
+        const { endDate, startDate } = info
 
-    return rows && rows.length > 0 ? rows : -99
+        const [rows, fields] = await _db.execute(
+          'SELECT DATE_FORMAT(created_at, \'%Y-%m-%d\') AS day, SUM(time_on_page) AS total_time, COUNT(*) AS count FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?) GROUP BY day',
+          [startDate, endDate]
+        )
+
+        if (rows && rows.length > 0) {
+          return rows
+        } else {
+          return -99
+        }
+      }
+    }
   } catch (error) {
     throw new Error(`Page Services Read Pages By Total Time Views ${error}`)
   }
