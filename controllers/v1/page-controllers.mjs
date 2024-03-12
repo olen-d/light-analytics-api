@@ -2,7 +2,8 @@
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
-  getPagesByTotalTimeViews,
+  getViewsCountTimeByDay,
+  getViewsCountTimeTotal,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalViews,
@@ -40,7 +41,7 @@ async function addPage (request, reply) {
   }
 }
 
-async function readPagesByTotalTimeViews (request, reply) {
+async function readViewsCountTimeByDay (request, reply) {
   try {
     const { _db } = this
 
@@ -52,10 +53,22 @@ async function readPagesByTotalTimeViews (request, reply) {
       info = { type: 'dates', endDate, startDate }
     }
 
-    const result = await getPagesByTotalTimeViews(_db, info)
+    const result = await getViewsCountTimeByDay(_db, info)
     reply.send(result)
   } catch (error) {
-    throw new Error(`Page Controllers Read Pages by Total Views ${error}`)
+    throw new Error(`Page Controllers Read Views Count Time By Day ${error}`)
+  }
+}
+
+async function readViewsCountTimeTotal (req, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getViewsCountTimeTotal(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Read Views Count Total Time ${error}`)
   }
 }
 
@@ -103,7 +116,8 @@ async function readRoutesByTotalViews (request, reply) {
 
 export {
   addPage,
-  readPagesByTotalTimeViews,
+  readViewsCountTimeByDay,
+  readViewsCountTimeTotal,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
   readRoutesByTotalViews

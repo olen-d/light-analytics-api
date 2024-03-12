@@ -2,24 +2,36 @@
 
 import {
   createPage,
-  readPagesByTotalTimeViews,
+  readViewsCountTimeByDay,
+  readViewsCountTimeTotal,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
   readRoutesByTotalViews
 } from '../../services/v1/page-services.mjs'
 
-const getPagesByTotalTimeViews = async (_db, info) => {
+const getViewsCountTimeByDay = async (_db, info) => {
   try {
-    const result = await readPagesByTotalTimeViews(_db, info)
+    const result = await readViewsCountTimeByDay(_db, info)
     const status = await result != -99 ? 'ok' : 'error'
     const data = status === 'ok' ? result : null
 
     return { status, data }
   } catch (error) {
-    throw new Error(`Page Models Get Pages by Total Tine Views ${error}`)
+    throw new Error(`Page Models Get Views Count Time By Day ${error}`)
   }
 }
 
+const getViewsCountTimeTotal = async (_db, info) => {
+  try {
+    const result = await readViewsCountTimeTotal(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Views Count Time Total ${error}`)
+  }
+}
 const getRoutesByTotalTime = async (_db, info) => {
   try {
     const result = await readRoutesByTotalTime(_db, info)
@@ -69,7 +81,8 @@ const newPage = async (_db, info) => {
 }
 
 export {
-  getPagesByTotalTimeViews,
+  getViewsCountTimeByDay,
+  getViewsCountTimeTotal,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalViews,
