@@ -81,7 +81,7 @@ const readRoutesByTotalTimeViews = async (_db, info) => {
         const { endDate, startDate } = info
 
         const [rows, fields] = await _db.execute(
-          'SELECT route, SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM (SELECT created_at, route, time_on_page FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route ORDER BY total_time DESC',
+          'SELECT route, CAST(ROUND(SUM(time_on_page)) AS SIGNED) AS total_time, COUNT(*) AS total_views FROM (SELECT created_at, route, time_on_page FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route ORDER BY total_time DESC',
           [startDate, endDate]
         )
 
