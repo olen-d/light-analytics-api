@@ -121,7 +121,7 @@ const tokenGrantTypeRefreshToken = async function (req, reply) {
 
     const { aud: clientId, sub: userId } = verifyTokenResult
 
-    if ( aud !== audience ) {
+    if ( clientId !== audience ) {
       throw new Error(`Auth Controllers Token Grant Type Refresh Token Invalid Audience`)
     }
 
