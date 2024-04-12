@@ -92,14 +92,18 @@ const tokenGrantTypePassword = async function (req, reply) {
 const tokenGrantTypeRefreshToken = async function (req, reply) {
   try {
     const cookieRefreshToken = req?.cookies?.refreshToken // In case users have cookies disabled
-console.log(`\n\n,COOKIES\n${JSON.stringify(req.cookies, null, 7)}\n\n\n`)
     const { _db } = this
 
     const {
-      body: { refreshToken: refreshTokenValue },
+      body,
       headers: { referer, 'user-agent': userAgent }, 
       ip: clientIp
     } = req
+
+    const bodyParsed = JSON.parse(body)
+    const trimmed = trimAll(bodyParsed)
+    const sanitized = sanitizeAll(trimmed)
+    const { refreshToken: refreshTokenValue } = sanitized
 
     const refreshToken = refreshTokenValue === 'none' && cookieRefreshToken ? cookieRefreshToken : refreshTokenValue
 
