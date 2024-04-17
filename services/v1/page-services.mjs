@@ -69,17 +69,15 @@ const readRoutesByTotalTime = async (_db, info) => {
 
 const readRoutesByTotalTimeViews = async (_db, info) => {
   try {
-    if (info === 'all') {
+    if (info.all) {
       const [rows, fields] = await _db.execute(
         'SELECT route, SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages GROUP BY route ORDER BY total_time DESC'
       )
   
       return rows && rows.length > 0 ? rows : -99
     } else {
-      const { type } = info
-      if (type === 'dates') {
-        const { endDate, startDate } = info
-
+      const { endDate, levels, startDate } = info
+      if (endDate && startDate) {
         const [rows, fields] = await _db.execute(
           'SELECT route, CAST(ROUND(SUM(time_on_page)) AS SIGNED) AS total_time, COUNT(*) AS total_views FROM (SELECT created_at, route, time_on_page FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route ORDER BY total_time DESC',
           [startDate, endDate]

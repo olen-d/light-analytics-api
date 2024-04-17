@@ -88,12 +88,15 @@ async function readRoutesByTotalTimeViews (request, reply) {
   try {
     const { _db } = this
 
-    let info = null
+    const info = {}
     if (Object.keys(request.query).length === 0) {
-      info = 'all'
+      info.all = true
     } else {
-      const { query: { enddate: endDate, startdate: startDate }, } = request
-      info = { type: 'dates', endDate, startDate }
+      const { query: { enddate: endDate, levels, startdate: startDate }, } = request
+
+      info.endDate = endDate || false
+      info.levels = levels || false
+      info.startDate = startDate || false
     }
     const result = await getRoutesByTotalTimeViews(_db, info)
     reply.send(result)
