@@ -77,10 +77,34 @@ const readRoutesByTotalTimeViews = async (_db, info) => {
       return rows && rows.length > 0 ? rows : -99
     } else {
       const { endDate, levels, startDate } = info
+      if (endDate && levels && startDate) {
+        const [rows, fields] = await _db.execute(
+          'SELECT SUBSTRING_INDEX(route, \'/\', ?) AS route_consolidated, CAST(ROUND(SUM(time_on_page)) AS SIGNED) AS total_time, COUNT(*) AS total_views FROM (SELECT created_at, route, time_on_page FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route_consolidated ORDER BY total_time DESC',
+          [levels, startDate, endDate]
+        )
+
+        if (rows && rows.length > 0) {
+          return rows
+        } else {
+          return -99
+        }
+      }
       if (endDate && startDate) {
         const [rows, fields] = await _db.execute(
           'SELECT route, CAST(ROUND(SUM(time_on_page)) AS SIGNED) AS total_time, COUNT(*) AS total_views FROM (SELECT created_at, route, time_on_page FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route ORDER BY total_time DESC',
           [startDate, endDate]
+        )
+
+        if (rows && rows.length > 0) {
+          return rows
+        } else {
+          return -99
+        }
+      }
+      if (levels) {
+        const [rows, fields] = await _db.execute(
+          'SELECT SUBSTRING_INDEX(route, \'/\', ?) AS route_consolidated, SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages GROUP BY route_consolidated ORDER BY total_time DESC',
+          [levels]
         )
 
         if (rows && rows.length > 0) {
