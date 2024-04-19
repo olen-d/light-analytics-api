@@ -1,6 +1,7 @@
 'use strict'
 import {
   addPage,
+  readViewsCountEntry,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
   readRoutesByTotalTime,
@@ -11,6 +12,7 @@ import {
 export default async function (fastify, opts) {
   fastify.get('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTimeTotal)
   fastify.get('/by-day', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTimeByDay)
+  fastify.get('/entry', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountEntry)
   fastify.get('/routes/total-time', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTime)
   fastify.get('/routes/total-time-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTimeViews)
   fastify.get('/routes/total-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalViews)
