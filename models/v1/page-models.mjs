@@ -2,12 +2,25 @@
 
 import {
   createPage,
+  readViewsCountEntry,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
   readRoutesByTotalViews
 } from '../../services/v1/page-services.mjs'
+
+const getViewsCountEntry = async (_db, info) => {
+  try {
+    const result = await readViewsCountEntry(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Views Count Entry ${error}`)
+  }
+}
 
 const getViewsCountTimeByDay = async (_db, info) => {
   try {
@@ -81,6 +94,7 @@ const newPage = async (_db, info) => {
 }
 
 export {
+  getViewsCountEntry,
   getViewsCountTimeByDay,
   getViewsCountTimeTotal,
   getRoutesByTotalTime,
