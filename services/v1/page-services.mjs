@@ -17,7 +17,7 @@ const createPage = async (_db, info) => {
 const readViewsCountEntry = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
-      'SELECT entry_page, COUNT(*) AS entry_page_count FROM (SELECT session_id, page_start_time, route, FIRST_VALUE(route) OVER (PARTITION BY session_id ORDER BY page_start_time ASC) as entry_page FROM pages) AS sb GROUP BY entry_page ORDER BY entry_page_count DESC'
+      'SELECT entry_page, COUNT(DISTINCT session_id) AS entry_page_count FROM (SELECT session_id, page_start_time, route, FIRST_VALUE(route) OVER (PARTITION BY session_id ORDER BY page_start_time ASC) as entry_page FROM pages) AS sb GROUP BY entry_page ORDER BY entry_page_count DESC'
     )
 
     return rows && rows.length > 0 ? rows : -99
