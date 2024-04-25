@@ -49,6 +49,11 @@ async function readViewsCountEntry (request, reply) {
     const info = {}
     if (Object.keys(request.query).length === 0) {
       info.all = true
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+
+      info.endDate = endDate || false
+      info.startDate = startDate || false
     }
 
     const result = await getViewsCountEntry(_db, info)
