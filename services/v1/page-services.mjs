@@ -38,6 +38,30 @@ const readViewsCountEntry = async (_db, info) => {
   }
 }
 
+const readViewsCountExit = async (_db, info) => {
+  try {
+    if (info.all) {
+      const [rows, fields] = await _db.execute(
+        'SELECT exit_page, COUNT(DISTINCT session_id) AS exit_page_count FROM (SELECT session_id, page_start_time, route, FIRST_VALUE(route) OVER (PARTITION BY session_id ORDER BY page_start_time DESC) as exit_page FROM pages) AS sb GROUP BY exit_page ORDER BY exit_page_count DESC'
+      )
+  
+      return rows && rows.length > 0 ? rows : -99
+    } else {
+      const { endDate, startDate } = info
+      if (endDate && startDate) {
+        const [rows, fields] = await _db.execute(
+          'SELECT exit_page, COUNT(DISTINCT session_id) AS exit_page_count FROM (SELECT session_id, page_start_time, route, FIRST_VALUE(route) OVER (PARTITION BY session_id ORDER BY page_start_time DESC) as exit_page FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) AS sb GROUP BY exit_page ORDER BY exit_page_count DESC',
+          [startDate, endDate]
+        )
+    
+        return rows && rows.length > 0 ? rows : -99
+      }
+    }
+  } catch (error) {
+    throw new Error(`Page Services Read Views Count Exit ${error}`)
+  }
+}
+
 const readViewsCountTimeTotal = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -158,6 +182,7 @@ const readRoutesByTotalViews = async (_db, info) => {
 export {
   createPage,
   readViewsCountEntry,
+  readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
   readRoutesByTotalTime,

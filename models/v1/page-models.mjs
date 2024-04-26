@@ -3,6 +3,7 @@
 import {
   createPage,
   readViewsCountEntry,
+  readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
   readRoutesByTotalTime,
@@ -19,6 +20,18 @@ const getViewsCountEntry = async (_db, info) => {
     return { status, data }
   } catch (error) {
     throw new Error(`Page Models Get Views Count Entry ${error}`)
+  }
+}
+
+const getViewsCountExit = async (_db, info) => {
+  try {
+    const result = await readViewsCountExit(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Views Count Exit ${error}`)
   }
 }
 
@@ -95,6 +108,7 @@ const newPage = async (_db, info) => {
 
 export {
   getViewsCountEntry,
+  getViewsCountExit,
   getViewsCountTimeByDay,
   getViewsCountTimeTotal,
   getRoutesByTotalTime,
