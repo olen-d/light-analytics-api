@@ -12,13 +12,51 @@ import {
   newPage
 } from '../../models/v1/page-models.mjs'
 
+// Helper Functions
+const filterQueryString = (getSetting, route) => {
+  if (route.indexOf('?') !== -1) {
+    const excludedURLQueryParameters = getSetting('excludedURLQueryParameters')
+    if (excludedURLQueryParameters) {
+      const parameters = excludedURLQueryParameters.split(',')
+      const [path, queryParameters] = route.split('?')
+      if (queryParameters.indexOf('&') !== -1) {
+        const queryParametersList = queryParameters.split('&')
+
+        const filteredQueryParametersList = queryParametersList.filter(queryParameter => {
+          const matches = matchExcludedURLQueryParameters(parameters, queryParameter)
+          return !matches.length > 0
+        })
+        const filteredRoute = filteredQueryParametersList.length > 0 ? `${path}?${filteredQueryParametersList.join('&')}` : path
+        return filteredRoute
+      } else {
+        const matches = matchExcludedURLQueryParameters(parameters, queryParameters)
+        const filteredRoute = matches.length === 0 ? `${path}?${queryParameters}` : path
+        return filteredRoute
+      }
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+
+const matchExcludedURLQueryParameters = (parameters, queryParameter) => {
+  const matches = parameters.filter(parameter => {
+    const regex = new RegExp(`${parameter}=`, 'i')
+    const test = regex.test(queryParameter)
+    return test
+  })
+  return matches
+}
+
 async function addPage (request, reply) {
   try {
-    const { _db } = this
+    const { _db, getSetting } = this
     const { body } = request
     const trimmed = trimAll(body)
     const sanitized = sanitizeAll(trimmed)
-  
+
     const {
       pageName,
       pageStartTime,
@@ -36,6 +74,9 @@ async function addPage (request, reply) {
       timeOnPage
     }
   
+    const newRoute = filterQueryString(getSetting, route)
+    if (newRoute) { info.route = newRoute }
+
     const result = await newPage(_db, info)
     reply.send(result)
   } catch (error) {

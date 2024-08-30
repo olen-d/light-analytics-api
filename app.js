@@ -9,6 +9,7 @@ import fastifyAuth from '@fastify/auth'
 
 import * as mysql from 'mysql2/promise'
 
+import { getAllSettings } from './models/v1/setting-models.mjs'
 import { geteKeyDomainScope }  from './models/v1/key-models.mjs'
 
 import { hashKey } from './services/v1/hash-api-key.mjs'
@@ -25,6 +26,7 @@ export default async function (fastify, opts) {
     'credentials': true,
     'origin': originsAllowed
   })
+
   const pool = await mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
@@ -38,7 +40,19 @@ export default async function (fastify, opts) {
     keepAliveInitialDelay: 0
   })
 
-  const verifyKey = async( request, reply) => {
+  let settings = []
+
+  const getSetting = setting => {
+    const item = settings.find(element => { return element.setting === setting })
+    if (item) {
+      const { value } = item
+      return value
+    } else {
+      return false
+    }
+  }
+
+  const verifyKey = async(request, reply) => {
     try {
       const { headers: { 'api-key': apiKey, origin, host }, method } = request
       const hostname = origin ? origin.replace(/^https?\:\/\//i, '') : host
@@ -77,7 +91,20 @@ export default async function (fastify, opts) {
   }
 
   fastify.decorate('_db', pool)
+  fastify.decorate('getSetting', getSetting)
   fastify.decorate('verifyAPIKey', verifyKey)
+
+  fastify.addHook('onReady', async () => {
+    const _db = pool
+    const result = await getAllSettings(_db)
+
+    if (result.status === 'ok') {
+      const { data } = result
+      settings = [...data]
+    } else {
+      settings = []
+    }
+  })
 
   // Do not touch the following lines
   const __filename = fileURLToPath(import.meta.url)
