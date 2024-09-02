@@ -1,5 +1,3 @@
-'use strict'
-
 const createSession = async (_db, info) => {
   try {
     const {
@@ -92,6 +90,41 @@ const readVisitsCountTotalByDay = async(_db, info) => {
   }
 }
 
+const readVisitsCountTotalByMonth = async(_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT DATE_FORMAT(created_at, \'%Y-%m\') AS month, COUNT(*) AS count FROM sessions GROUP BY month'
+      )
+      if (rows && rows.length > 0) {
+        return rows
+      } else {
+        return -99
+      }
+    } catch (error) {
+      throw new Error(`Session Services Read Visits Count Total By Month (All) ${error}`)
+    }
+  } else {
+    const { type } = info
+    if (type === 'dates') {
+      const { endDate, startDate } = info
+      try {
+        const [rows, fields] = await _db.execute(
+          'SELECT DATE_FORMAT(created_at, \'%Y-%m\') AS month, COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?) GROUP BY month',
+          [startDate, endDate]
+        )
+        if (rows && rows.length > 0) {
+          return rows
+        } else {
+          return -99
+        }
+      } catch (error) {
+        throw new Error(`Session Services Read Visits Count Total By Month (Dates) ${error}`)
+      }
+    }
+  }
+}
+
 const readVisitsCountUnique = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -112,7 +145,8 @@ const readVisitsCountUnique = async (_db, info) => {
 export {
   createSession,
   readSinglePageSessionsCountTotal,
-  readVisitsCountTotalByDay,
   readVisitsCountTotal,
+  readVisitsCountTotalByDay,
+  readVisitsCountTotalByMonth,
   readVisitsCountUnique
 }

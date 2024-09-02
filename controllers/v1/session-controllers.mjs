@@ -1,10 +1,9 @@
-'use strict'
-
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
   getSinglePageSessionsCountTotal,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
+  getVisitsCountTotalByMonth,
   getVisitsCountUnique,
   newSession
 } from '../../models/v1/session-models.mjs'
@@ -115,6 +114,26 @@ async function readVisitsCountTotalByDay (request, reply) {
   }
 }
 
+async function readVisitsCountTotalByMonth (request, reply) {
+  const { _db } = this
+
+  let info = null
+
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+    info = { type: 'dates', endDate, startDate }
+  }
+
+  try {
+    const result = await getVisitsCountTotalByMonth(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Visits Count Total By Month ${error}`)
+  }
+}
+
 async function readVisitsCountUnique (request, reply) {
   try {
     const { _db } = this
@@ -133,5 +152,6 @@ export {
   readSinglePageSessionsCountTotal,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
+  readVisitsCountTotalByMonth,
   readVisitsCountUnique
 }
