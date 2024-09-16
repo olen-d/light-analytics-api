@@ -5,6 +5,7 @@ import {
   getVisitsCountTotalByDay,
   getVisitsCountTotalByMonth,
   getVisitsCountUnique,
+  getVisitsCountUniqueByMonth,
   newSession
 } from '../../models/v1/session-models.mjs'
 
@@ -146,6 +147,26 @@ async function readVisitsCountUnique (request, reply) {
   }
 }
 
+async function readVisitsCountUniqueByMonth (request, reply) {
+  const { _db } = this
+
+  let info = null
+
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+    info = { type: 'dates', endDate, startDate }
+  }
+
+  try {
+    const result = await getVisitsCountUniqueByMonth(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Visits Count Unique By Month ${error}`)
+  }
+}
+
 export {
   addSession,
   readBounceRateTotal,
@@ -153,5 +174,6 @@ export {
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
+  readVisitsCountUniqueByMonth,
   readVisitsCountUnique
 }

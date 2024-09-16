@@ -4,7 +4,8 @@ import {
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
-  readVisitsCountUnique
+  readVisitsCountUnique,
+  readVisitsCountUniqueByMonth
 } from '../../services/v1/session-services.mjs'
 
 const getSinglePageSessionsCountTotal = async (_db, info) => {
@@ -66,6 +67,17 @@ const getVisitsCountUnique = async (_db, info) => {
   }
 }
 
+const getVisitsCountUniqueByMonth = async (_db, info) => {
+  try {
+    const result = await readVisitsCountUniqueByMonth(_db, info)
+    const data = { 'uniqueVisitsByMonth': result }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Session Models Get Visits Count Unique By Month ${error}`)
+  }
+}
+
 const newSession = async (_db, info) => {
   try {
     const result = await createSession(_db, info)
@@ -84,5 +96,6 @@ export {
   getVisitsCountTotalByDay,
   getVisitsCountTotalByMonth,
   getVisitsCountUnique,
+  getVisitsCountUniqueByMonth,
   newSession
 }
