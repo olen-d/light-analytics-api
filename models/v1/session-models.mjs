@@ -1,6 +1,7 @@
 import {
   createSession,
   readSinglePageSessionsCountTotal,
+  readSinglePageSessionsCountTotalByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
@@ -17,6 +18,18 @@ const getSinglePageSessionsCountTotal = async (_db, info) => {
     return { 'status': 'ok', data }
   } catch (error) {
     throw new Error(`Session Models Get Single Page Sessions Count Total ${error}`)
+  }
+}
+
+const getSinglePageSessionsCountTotalByMonth = async (_db, info) => {
+  try {
+    const result = await readSinglePageSessionsCountTotalByMonth(_db, info)
+
+    const data = { 'totalSinglePageSessionsByMonth': result }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Session Models Get Single Page Sessions Count Total By Month ${error}`)
   }
 }
 
@@ -92,6 +105,7 @@ const newSession = async (_db, info) => {
 
 export {
   getSinglePageSessionsCountTotal,
+  getSinglePageSessionsCountTotalByMonth,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
   getVisitsCountTotalByMonth,

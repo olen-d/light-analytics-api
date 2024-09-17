@@ -40,6 +40,24 @@ const readSinglePageSessionsCountTotal = async (_db, info) => {
   }
 }
 
+const readSinglePageSessionsCountTotalByMonth = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT month, COUNT(*) AS count FROM (SELECT month, COUNT(*) FROM (SELECT DATE_FORMAT(created_at, \'%Y-%m\') AS month, session_id, route FROM pages GROUP BY month, session_id, route) AS TT GROUP BY month, session_id HAVING COUNT(*) = 1) AS ONLY_ONCE GROUP BY month'
+      )
+
+      if (rows && rows.length > 0) {
+        return rows
+      } else {
+        return -99
+      }
+    } catch (error) {
+      throw new Error(`Session Services Read Single Page Sessions Total ${error}`)
+    }
+  } // Else get other types, e.g. date ranges
+}
+
 const readVisitsCountTotal = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -180,6 +198,7 @@ const readVisitsCountUniqueByMonth = async(_db, info) => {
 export {
   createSession,
   readSinglePageSessionsCountTotal,
+  readSinglePageSessionsCountTotalByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
