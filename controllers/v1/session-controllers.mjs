@@ -1,6 +1,7 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
   getSinglePageSessionsCountTotal,
+  getSinglePageSessionsCountTotalByMonth,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
   getVisitsCountTotalByMonth,
@@ -82,6 +83,18 @@ async function readSinglePageSessionsCountTotal (request, reply) {
     reply.send(result)
   } catch (error) {
     throw new Error(`Session Controllers Read Single Page Sessions Count Total ${error}`)
+  }
+}
+
+async function readSinglePageSessionsCountTotalByMonth (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getSinglePageSessionsCountTotalByMonth(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Single Page Sessions Count Total By Month ${error}`)
   }
 }
 
@@ -171,6 +184,7 @@ export {
   addSession,
   readBounceRateTotal,
   readSinglePageSessionsCountTotal,
+  readSinglePageSessionsCountTotalByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
