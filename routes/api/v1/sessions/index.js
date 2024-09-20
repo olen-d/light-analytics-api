@@ -4,6 +4,7 @@ import {
   readBounceRateTotal,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
+  readSummaryByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
@@ -18,6 +19,7 @@ export default async function (fastify, opts) {
   fastify.get('/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotalByMonth)
   fastify.get('/single-page', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readSinglePageSessionsCountTotal)
   fastify.get('/single-page/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readSinglePageSessionsCountTotalByMonth)
+  fastify.get('/summary/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readSummaryByMonth)
   fastify.get('/unique', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountUnique)
   fastify.get('/unique/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountUniqueByMonth)
   fastify.post('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, addSession)
