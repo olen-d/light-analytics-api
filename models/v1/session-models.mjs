@@ -83,7 +83,7 @@ const getVisitsCountUnique = async (_db, info) => {
 const getVisitsCountUniqueByMonth = async (_db, info) => {
   try {
     const result = await readVisitsCountUniqueByMonth(_db, info)
-    const data = { 'uniqueVisitsByMonth': result }
+    const data = { 'totalUniqueVisitsByMonth': result }
 
     return { 'status': 'ok', data }
   } catch (error) {

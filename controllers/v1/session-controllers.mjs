@@ -98,6 +98,81 @@ async function readSinglePageSessionsCountTotalByMonth (request, reply) {
   }
 }
 
+async function readSummaryByMonth (request, reply) {
+  const { _db } = this
+  const info = 'all'
+
+  const startDates = []
+  const endDates = []
+
+  const monthsInPeriod = []
+
+  try {
+    const resultTotal = await getVisitsCountTotalByMonth(_db, info)
+    const resultUnique = await getVisitsCountUniqueByMonth(_db, info)
+    const resultSinglePage = await getSinglePageSessionsCountTotalByMonth(_db, info)
+
+    const { data: { totalVisitsByMonth }, } = resultTotal
+    startDates.push(totalVisitsByMonth[0].month)
+    endDates.push(totalVisitsByMonth[totalVisitsByMonth.length - 1].month)
+
+    const { data: { totalUniqueVisitsByMonth }, } = resultUnique
+    startDates.push(totalUniqueVisitsByMonth[0].month)
+    endDates.push(totalUniqueVisitsByMonth[totalUniqueVisitsByMonth.length - 1].month)
+
+    const { data: { totalSinglePageSessionsByMonth }, } = resultSinglePage
+    startDates.push(totalSinglePageSessionsByMonth[0].month)
+    endDates.push(totalSinglePageSessionsByMonth[totalSinglePageSessionsByMonth.length - 1].month)
+
+    startDates.sort()
+    endDates.sort().reverse()
+
+    const startDate = startDates[0]
+    const endDate = endDates[0]
+
+    let m = startDate
+    let nextYear = 0
+    let nextMonth = 0
+
+    while (m <= endDate) {
+      monthsInPeriod.push(m)
+      let [curYear, curMonth] = m.split('-')
+      curYear = Number(curYear)
+      curMonth = Number(curMonth)
+
+      if (curMonth === 12) {
+        nextYear = curYear + 1
+        nextMonth = '01'
+      } else {
+        nextYear = curYear
+        nextMonth = curMonth < 9 ? `0${curMonth + 1}` : curMonth + 1
+      }
+      m = `${nextYear}-${nextMonth}`
+    }
+
+    const summaryByMonthWithZeros = monthsInPeriod.map(item => {
+      const indexTVBM = totalVisitsByMonth.findIndex(element => element.month === item)
+      const indexUVBM = totalUniqueVisitsByMonth.findIndex(element => element.month === item)
+      const indexSPBM = totalSinglePageSessionsByMonth.findIndex(element => element.month === item)
+      const tvbm = indexTVBM === -1 ? 0 : totalVisitsByMonth[indexTVBM].count
+      const uvbm = indexUVBM === -1 ? 0 : totalUniqueVisitsByMonth[indexUVBM].count
+      const spbm = indexSPBM === -1 ? 0 : totalSinglePageSessionsByMonth[indexSPBM].count
+      const bounceRate = spbm / tvbm
+      return ({
+        month: item,
+        totalVisits: tvbm,
+        uniqueVisits: uvbm,
+        singlePageSessions: spbm,
+        bounceRate
+      })
+    })
+    const status = 'ok'
+    reply.send({ status, data: { summaryByMonth: summaryByMonthWithZeros } })
+  } catch (error) {
+    throw new Error(`Session Controllers Read Summmary By Month ${error}`)
+  }
+}
+
 async function readVisitsCountTotal (request, reply) {
   try {
     const { _db } = this
@@ -185,6 +260,7 @@ export {
   readBounceRateTotal,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
+  readSummaryByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
