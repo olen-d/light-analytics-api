@@ -103,6 +103,22 @@ const readViewsCountTimeByDay = async (_db, info) => {
     throw new Error(`Page Services Read Pages By Total Time Views ${error}`)
   }
 }
+
+const readViewsCountTotalByMonth = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT DATE_FORMAT(created_at, \'%Y-%m\') AS month, COUNT(*) AS count FROM pages GROUP BY month'
+      )
+      return rows && rows.length > 0 ? rows : -99
+    } catch (error) {
+      throw new Error(`Page Services Read Views By Month ${error}`)
+    }
+  } else {
+    // Deal with custom info
+  }
+}
+
 const readRoutesByTotalTime = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -185,6 +201,7 @@ export {
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
+  readViewsCountTotalByMonth,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
   readRoutesByTotalViews

@@ -6,6 +6,7 @@ import {
   getViewsCountExit,
   getViewsCountTimeByDay,
   getViewsCountTimeTotal,
+  getViewsCountTotalByMonth,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalViews,
@@ -157,6 +158,18 @@ async function readViewsCountTimeTotal (req, reply) {
   }
 }
 
+async function readViewsCountTotalByMonth (req, reply) {
+  const { _db } = this
+  const info = 'all'
+
+  try {
+    const result = await getViewsCountTotalByMonth(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Read Views Count Total By Month ${error}`)
+  }
+}
+
 async function readRoutesByTotalTime (req, reply) {
   try {
     const { _db } = this
@@ -208,6 +221,7 @@ export {
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
+  readViewsCountTotalByMonth,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
   readRoutesByTotalViews

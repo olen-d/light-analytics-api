@@ -6,6 +6,7 @@ import {
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
+  readViewsCountTotalByMonth,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
   readRoutesByTotalViews
@@ -58,6 +59,19 @@ const getViewsCountTimeTotal = async (_db, info) => {
     throw new Error(`Page Models Get Views Count Time Total ${error}`)
   }
 }
+
+const getViewsCountTotalByMonth = async(_db, info) =>{
+  try {
+    const result = await readViewsCountTotalByMonth(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Views Count Total By Month ${error}`)
+  }
+}
+
 const getRoutesByTotalTime = async (_db, info) => {
   try {
     const result = await readRoutesByTotalTime(_db, info)
@@ -111,6 +125,7 @@ export {
   getViewsCountExit,
   getViewsCountTimeByDay,
   getViewsCountTimeTotal,
+  getViewsCountTotalByMonth,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalViews,
