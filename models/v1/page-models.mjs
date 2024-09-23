@@ -64,7 +64,7 @@ const getViewsCountTotalByMonth = async(_db, info) =>{
   try {
     const result = await readViewsCountTotalByMonth(_db, info)
     const status = await result != -99 ? 'ok' : 'error'
-    const data = status === 'ok' ? result : null
+    const data = status === 'ok' ? { totalViewsByMonth: result } : null
 
     return { status, data }
   } catch (error) {
