@@ -8,7 +8,8 @@ import {
   readViewsCountTotalByMonth,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
-  readRoutesByTotalViews
+  readRoutesByTotalViews,
+  readRoutesByTotalUniqueViews
 } from '../../../../controllers/v1/page-controllers.mjs'
 
 export default async function (fastify, opts) {
@@ -20,5 +21,6 @@ export default async function (fastify, opts) {
   fastify.get('/routes/total-time', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTime)
   fastify.get('/routes/total-time-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTimeViews)
   fastify.get('/routes/total-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalViews)
+  fastify.get('/routes/total-unique-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalUniqueViews)
   fastify.post('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, addPage)
 }
