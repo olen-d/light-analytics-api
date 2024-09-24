@@ -195,6 +195,21 @@ const readRoutesByTotalViews = async (_db, info) => {
   }
 }
 
+const readRoutesByTotalUniqueViews = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT route, COUNT(DISTINCT session_id) AS total_unique_views FROM pages GROUP BY route ORDER BY total_unique_views DESC'
+      )
+      return rows && rows.length > 0 ? rows : -99
+    } catch (error) {
+      throw new Error(`Page Services Read Routes by Unique Views ${error}`)
+    }
+  } else {
+    // Parse info and do stuff as approopriate
+  }
+}
+
 export {
   createPage,
   readViewsCountEntry,
@@ -204,5 +219,6 @@ export {
   readViewsCountTotalByMonth,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
-  readRoutesByTotalViews
+  readRoutesByTotalViews,
+  readRoutesByTotalUniqueViews
 }

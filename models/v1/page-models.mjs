@@ -9,7 +9,8 @@ import {
   readViewsCountTotalByMonth,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
-  readRoutesByTotalViews
+  readRoutesByTotalViews,
+  readRoutesByTotalUniqueViews
 } from '../../services/v1/page-services.mjs'
 
 const getViewsCountEntry = async (_db, info) => {
@@ -108,6 +109,14 @@ const getRoutesByTotalViews= async (_db, info) => {
   }
 }
 
+const getRoutesByTotalUniqueViews = async (_db, info) => {
+  const result = await readRoutesByTotalUniqueViews(_db, info)
+  const status = await result != -99 ? 'ok' : 'error'
+  const data = status === 'ok' ? result : null
+
+  return { status, data}
+}
+
 const newPage = async (_db, info) => {
   try {
     const result = await createPage(_db, info)
@@ -129,5 +138,6 @@ export {
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalViews,
+  getRoutesByTotalUniqueViews,
   newPage
 }

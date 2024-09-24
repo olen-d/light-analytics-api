@@ -10,6 +10,7 @@ import {
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalViews,
+  getRoutesByTotalUniqueViews,
   newPage
 } from '../../models/v1/page-models.mjs'
 
@@ -215,6 +216,18 @@ async function readRoutesByTotalViews (request, reply) {
   }
 }
 
+async function readRoutesByTotalUniqueViews (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getRoutesByTotalUniqueViews(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Read Routes by Unique Views ${error}`)
+  }
+}
+
 export {
   addPage,
   readViewsCountEntry,
@@ -224,5 +237,6 @@ export {
   readViewsCountTotalByMonth,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
-  readRoutesByTotalViews
+  readRoutesByTotalViews,
+  readRoutesByTotalUniqueViews
 }
