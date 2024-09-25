@@ -2,6 +2,7 @@
 
 import {
   createPage,
+  readBounceRateByRoute,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
@@ -12,6 +13,18 @@ import {
   readRoutesByTotalViews,
   readRoutesByTotalUniqueViews
 } from '../../services/v1/page-services.mjs'
+
+const getBounceRateByRoute = async (_db, info) => {
+  try {
+    const result = await readBounceRateByRoute(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Bounce Rate By Route ${error}`)
+  }
+}
 
 const getViewsCountEntry = async (_db, info) => {
   try {
@@ -130,6 +143,7 @@ const newPage = async (_db, info) => {
 }
 
 export {
+  getBounceRateByRoute,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
