@@ -2,6 +2,7 @@
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
+  getBounceRateByRoute,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
@@ -83,6 +84,24 @@ async function addPage (request, reply) {
     reply.send(result)
   } catch (error) {
     throw new Error(`Page Controllers Add Page ${error}`)
+  }
+}
+
+async function readBounceRateByRoute (request, reply) {
+  const { _db } = this
+
+  let info = null
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    // Deal with custom info
+  }
+
+  try {
+    const result = await getBounceRateByRoute(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Read Bounce Rate By Route ${error}`)
   }
 }
 
@@ -230,6 +249,7 @@ async function readRoutesByTotalUniqueViews (request, reply) {
 
 export {
   addPage,
+  readBounceRateByRoute,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
