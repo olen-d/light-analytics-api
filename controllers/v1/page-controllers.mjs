@@ -137,7 +137,7 @@ async function readContentSummarByRoute (request, reply) {
       const expc = indexEXPC === -1 ? 0 : exitPagesCount[indexEXPC]['exit_page_count']
       const sps = indexSPS === -1 ? 0 : singlePageSessions[indexSPS]['single_page_sessions']
 
-      const bounceRate = `${Math.round( sps / totalViews * 100 )}%`
+      const bounceRate = sps / totalViews
 
       return({
         route,
