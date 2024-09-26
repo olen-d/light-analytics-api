@@ -2,7 +2,7 @@
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
-  getBounceRateByRoute,
+  getRoutesBySinglePageSessions,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
@@ -87,7 +87,7 @@ async function addPage (request, reply) {
   }
 }
 
-async function readBounceRateByRoute (request, reply) {
+async function readRoutesBySinglePageSessions (request, reply) {
   const { _db } = this
 
   let info = null
@@ -98,11 +98,70 @@ async function readBounceRateByRoute (request, reply) {
   }
 
   try {
-    const result = await getBounceRateByRoute(_db, info)
+    const result = await getRoutesBySinglePageSessions(_db, info)
     reply.send(result)
   } catch (error) {
-    throw new Error(`Page Controllers Read Bounce Rate By Route ${error}`)
+    throw new Error(`Page Controllers Read Routes By Single Page Sessions ${error}`)
   }
+}
+
+async function readContentSummarByRoute (request, reply) {
+  const { _db } = this
+  const infoModern = 'all'
+  const info = {}
+  info.all = true
+
+  try {
+    const resultTotal = await getRoutesByTotalTimeViews(_db, info)
+    const resultUnique = await getRoutesByTotalUniqueViews(_db, infoModern)
+    const resultEntry = await getViewsCountEntry(_db, info)
+    const resultExit = await getViewsCountExit(_db, info)
+    const resultSinglePage = await getRoutesBySinglePageSessions(_db, infoModern)
+
+    const { data: uniqueViewsByRoute } = resultUnique
+    const { data: entryPagesCount } = resultEntry
+    const { data: exitPagesCount} = resultExit
+    const { data: singlePageSessions } = resultSinglePage
+
+    const contentSummaryByRoute = resultTotal.data.map(item => {
+      const { route, 'total_views': totalViews, 'total_time': totalTime } = item
+      const averageTimeOnPage = Math.round(totalTime / totalViews)
+
+      const indexTUVBR = uniqueViewsByRoute.findIndex(element => element.route === item.route)
+      const indexENPC = entryPagesCount.findIndex(element => element['entry_page'] === item.route)
+      const indexEXPC = exitPagesCount.findIndex(element => element['exit_page'] === item.route)
+      const indexSPS = singlePageSessions.findIndex(element => element.route === item.route)
+
+      const tuvbr = indexTUVBR === -1 ? 0 : uniqueViewsByRoute[indexTUVBR]['total_unique_views']
+      const enpc = indexENPC === -1 ? 0 : entryPagesCount[indexENPC]['entry_page_count']
+      const expc = indexEXPC === -1 ? 0 : exitPagesCount[indexEXPC]['exit_page_count']
+      const sps = indexSPS === -1 ? 0 : singlePageSessions[indexSPS]['single_page_sessions']
+
+      const bounceRate = `${Math.round( sps / totalViews * 100 )}%`
+
+      return({
+        route,
+        totalViews,
+        uniquePageViews: tuvbr,
+        averageTimeOnPage,
+        entrances: enpc,
+        exits: expc,
+        bounceRate
+      })
+    })
+    const status = 'ok'
+    reply.send({ status, data: { contentSummaryByRoute } })
+  } catch(error) {
+    throw new Error(`Page Controllers Read Content Summary By Route ${error}`)
+  }
+
+  // Get Total Time and Page Views
+  // Get Unique Page Views
+  // Get Entries
+  // Get Exits
+  // Get Bounce Rate
+  // Calculate Average Time on Page and Add it to the Array
+  // Summary by Route { route, page_views, unique_page_views, average_time_on_page, entrances, exits, bounce_rate }
 }
 
 async function readViewsCountEntry (request, reply) {
@@ -249,7 +308,8 @@ async function readRoutesByTotalUniqueViews (request, reply) {
 
 export {
   addPage,
-  readBounceRateByRoute,
+  readRoutesBySinglePageSessions,
+  readContentSummarByRoute,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
