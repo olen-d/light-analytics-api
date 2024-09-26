@@ -1,7 +1,8 @@
 'use strict'
 import {
   addPage,
-  readBounceRateByRoute,
+  readRoutesBySinglePageSessions,
+  readContentSummarByRoute,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
@@ -15,7 +16,7 @@ import {
 
 export default async function (fastify, opts) {
   fastify.get('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTimeTotal)
-  fastify.get('/bounce-rate', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readBounceRateByRoute)
+  fastify.get('/single-page', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesBySinglePageSessions)
   fastify.get('/by-day', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTimeByDay)
   fastify.get('/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTotalByMonth)
   fastify.get('/entry', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountEntry)
@@ -24,5 +25,6 @@ export default async function (fastify, opts) {
   fastify.get('/routes/total-time-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTimeViews)
   fastify.get('/routes/total-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalViews)
   fastify.get('/routes/total-unique-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalUniqueViews)
+  fastify.get('/summary/by-route', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readContentSummarByRoute)
   fastify.post('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, addPage)
 }

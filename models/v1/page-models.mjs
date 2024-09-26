@@ -2,7 +2,7 @@
 
 import {
   createPage,
-  readBounceRateByRoute,
+  readRoutesBySinglePageSessions,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
@@ -14,15 +14,15 @@ import {
   readRoutesByTotalUniqueViews
 } from '../../services/v1/page-services.mjs'
 
-const getBounceRateByRoute = async (_db, info) => {
+const getRoutesBySinglePageSessions = async (_db, info) => {
   try {
-    const result = await readBounceRateByRoute(_db, info)
+    const result = await readRoutesBySinglePageSessions(_db, info)
     const status = await result != -99 ? 'ok' : 'error'
     const data = status === 'ok' ? result : null
 
     return { status, data }
   } catch (error) {
-    throw new Error(`Page Models Get Bounce Rate By Route ${error}`)
+    throw new Error(`Page Models Get Routes By Single Page Sessions ${error}`)
   }
 }
 
@@ -143,7 +143,7 @@ const newPage = async (_db, info) => {
 }
 
 export {
-  getBounceRateByRoute,
+  getRoutesBySinglePageSessions,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,

@@ -14,8 +14,8 @@ const createPage = async (_db, info) => {
   }
 }
 
-const readBounceRateByRoute = async (_db, info) => {
-  if (info ==='all') {
+const readRoutesBySinglePageSessions = async (_db, info) => {
+  if (info === 'all') {
     try {
       const [rows, fields] = await _db.execute(
         'SELECT route, COUNT(*) AS single_page_sessions FROM pages INNER JOIN (SELECT session_id FROM pages GROUP BY session_id HAVING COUNT(*) = 1) AS ONLY_ONCE ON pages.session_id = ONLY_ONCE.session_id GROUP BY route ORDER BY single_page_sessions DESC, route ASC'
@@ -226,7 +226,7 @@ const readRoutesByTotalUniqueViews = async (_db, info) => {
 
 export {
   createPage,
-  readBounceRateByRoute,
+  readRoutesBySinglePageSessions,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
