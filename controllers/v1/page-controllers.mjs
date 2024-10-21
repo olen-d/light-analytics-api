@@ -2,16 +2,18 @@
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
+  getSessionsTotal,
+  getTimeOnPageTotal,
   getRoutesBySinglePageSessions,
+  getRoutesByTotalTime,
+  getRoutesByTotalTimeViews,
+  getRoutesByTotalUniqueViews,
+  getRoutesByTotalViews,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
-  getViewsCountTimeTotal,
   getViewsCountTotalByMonth,
-  getRoutesByTotalTime,
-  getRoutesByTotalTimeViews,
-  getRoutesByTotalViews,
-  getRoutesByTotalUniqueViews,
+  getViewsCountTimeTotal,
   newPage
 } from '../../models/v1/page-models.mjs'
 
@@ -105,7 +107,7 @@ async function readRoutesBySinglePageSessions (request, reply) {
   }
 }
 
-async function readContentSummarByRoute (request, reply) {
+async function readContentSummaryByRoute (request, reply) {
   const { _db } = this
   const infoModern = 'all'
   const info = {}
@@ -162,6 +164,28 @@ async function readContentSummarByRoute (request, reply) {
   // Get Bounce Rate
   // Calculate Average Time on Page and Add it to the Array
   // Summary by Route { route, page_views, unique_page_views, average_time_on_page, entrances, exits, bounce_rate }
+}
+
+async function readTimeOnPageAverage (request, reply) {
+  const {_db } = this
+  const info = 'all'
+
+  try {
+    const resultTimeTotal = await getTimeOnPageTotal(_db, info)
+    const resultSessionsTotal = await getSessionsTotal(_db, info)
+
+    const { data: [{ 'total_time': totalTime }] } = resultTimeTotal
+    const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
+
+    const timeOnPageAverage = totalTime / totalSessions
+
+    const data = { timeOnPageAverage }
+    const status = 'ok'
+
+    reply.send({ status, data })
+  } catch (error) {
+    throw new Error(`Page Controllers Read Time On Page Average ${error}`)
+  }
 }
 
 async function readViewsCountEntry (request, reply) {
@@ -308,15 +332,16 @@ async function readRoutesByTotalUniqueViews (request, reply) {
 
 export {
   addPage,
+  readContentSummaryByRoute,
   readRoutesBySinglePageSessions,
-  readContentSummarByRoute,
+  readRoutesByTotalTime,
+  readRoutesByTotalTimeViews,
+  readRoutesByTotalUniqueViews,
+  readRoutesByTotalViews,
+  readTimeOnPageAverage,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
-  readViewsCountTotalByMonth,
-  readRoutesByTotalTime,
-  readRoutesByTotalTimeViews,
-  readRoutesByTotalViews,
-  readRoutesByTotalUniqueViews
+  readViewsCountTotalByMonth
 }

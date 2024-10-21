@@ -1,5 +1,3 @@
-'use strict'
-
 const createPage = async (_db, info) => {
   try {
     const { sessionId, pageStartTime, route, pageName, timeOnPage } = info
@@ -26,6 +24,32 @@ const readRoutesBySinglePageSessions = async (_db, info) => {
     }
   }
 
+}
+
+const readSessionsTotal = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT COUNT(DISTINCT session_id) AS total_sessions FROM pages'
+      )
+      return rows && rows.length > 0 ? rows: -99
+    } catch (error) {
+      throw new Error(`Page Services Read Sessions Total ${error}`)
+    }
+  }
+}
+
+const readTimeOnPageTotal = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT SUM(time_on_page) AS total_time FROM pages'
+      )
+      return rows && rows.length > 0 ? rows: -99
+    } catch (error) {
+      throw new Error(`Page Services Read Time On Page Total ${error}`)
+    }
+  }
 }
 
 const readViewsCountEntry = async (_db, info) => {
@@ -227,13 +251,15 @@ const readRoutesByTotalUniqueViews = async (_db, info) => {
 export {
   createPage,
   readRoutesBySinglePageSessions,
+  readRoutesByTotalTime,
+  readRoutesByTotalTimeViews,
+  readRoutesByTotalViews,
+  readRoutesByTotalUniqueViews,
+  readSessionsTotal,
+  readTimeOnPageTotal,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
-  readViewsCountTotalByMonth,
-  readRoutesByTotalTime,
-  readRoutesByTotalTimeViews,
-  readRoutesByTotalViews,
-  readRoutesByTotalUniqueViews
+  readViewsCountTotalByMonth
 }
