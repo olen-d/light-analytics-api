@@ -195,6 +195,40 @@ const readVisitsCountUniqueByMonth = async(_db, info) => {
   }
 }
 
+const readVisitsFirstTime = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT created_at FROM sessions ORDER BY created_at ASC LIMIT 1'
+    )
+
+    if (rows && rows.length > 0) {
+      const[{ 'created_at': startDate }] = rows
+      return startDate
+    } else {
+      return -99
+    }
+  } catch (error) {
+    throw new Error(`Session Services Read Visits First Time ${error}`)
+  }
+}
+
+const readVisitsLastTime = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT created_at FROM sessions ORDER BY created_at DESC LIMIT 1'
+    )
+
+    if (rows && rows.length > 0) {
+      const[{ 'created_at': endDate }] = rows
+      return endDate
+    } else {
+      return -99
+    }
+  } catch (error) {
+    throw new Error(`Session Services Read Visits Last Time ${error}`)
+  }
+}
+
 export {
   createSession,
   readSinglePageSessionsCountTotal,
@@ -203,5 +237,7 @@ export {
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
   readVisitsCountUnique,
-  readVisitsCountUniqueByMonth
+  readVisitsCountUniqueByMonth,
+  readVisitsFirstTime,
+  readVisitsLastTime
 }
