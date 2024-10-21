@@ -1,17 +1,18 @@
 'use strict'
 import {
   addPage,
+  readContentSummaryByRoute,
   readRoutesBySinglePageSessions,
-  readContentSummarByRoute,
+  readRoutesByTotalTime,
+  readRoutesByTotalTimeViews,
+  readRoutesByTotalUniqueViews,
+  readRoutesByTotalViews,
+  readTimeOnPageAverage,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
-  readViewsCountTotalByMonth,
-  readRoutesByTotalTime,
-  readRoutesByTotalTimeViews,
-  readRoutesByTotalViews,
-  readRoutesByTotalUniqueViews
+  readViewsCountTotalByMonth
 } from '../../../../controllers/v1/page-controllers.mjs'
 
 export default async function (fastify, opts) {
@@ -25,6 +26,7 @@ export default async function (fastify, opts) {
   fastify.get('/routes/total-time-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTimeViews)
   fastify.get('/routes/total-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalViews)
   fastify.get('/routes/total-unique-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalUniqueViews)
-  fastify.get('/summary/by-route', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readContentSummarByRoute)
+  fastify.get('/summary/by-route', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readContentSummaryByRoute)
+  fastify.get('/time-on-pages/average', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readTimeOnPageAverage)
   fastify.post('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, addPage)
 }

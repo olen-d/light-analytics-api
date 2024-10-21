@@ -3,15 +3,17 @@
 import {
   createPage,
   readRoutesBySinglePageSessions,
+  readRoutesByTotalTime,
+  readRoutesByTotalTimeViews,
+  readRoutesByTotalUniqueViews,
+  readRoutesByTotalViews,
+  readSessionsTotal,
+  readTimeOnPageTotal,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
-  readViewsCountTimeTotal,
   readViewsCountTotalByMonth,
-  readRoutesByTotalTime,
-  readRoutesByTotalTimeViews,
-  readRoutesByTotalViews,
-  readRoutesByTotalUniqueViews
+  readViewsCountTimeTotal
 } from '../../services/v1/page-services.mjs'
 
 const getRoutesBySinglePageSessions = async (_db, info) => {
@@ -130,6 +132,30 @@ const getRoutesByTotalUniqueViews = async (_db, info) => {
   return { status, data}
 }
 
+const getSessionsTotal= async (_db, info) => {
+ try {
+  const result = await readSessionsTotal(_db, info)
+  const status = await result != -99 ? 'ok' : 'error'
+  const data = status === 'ok' ? result : null
+
+  return { status, data}
+ } catch (error) {
+    throw new Error(`Page Models Get Sessions Total ${error}`)
+  }
+}
+
+const getTimeOnPageTotal= async (_db, info) => {
+  try {
+   const result = await readTimeOnPageTotal(_db, info)
+   const status = await result != -99 ? 'ok' : 'error'
+   const data = status === 'ok' ? result : null
+ 
+   return { status, data}
+  } catch (error) {
+     throw new Error(`Page Models Get Time On Page Total ${error}`)
+   }
+ }
+
 const newPage = async (_db, info) => {
   try {
     const result = await createPage(_db, info)
@@ -143,15 +169,17 @@ const newPage = async (_db, info) => {
 }
 
 export {
+  getSessionsTotal,
+  getTimeOnPageTotal,
   getRoutesBySinglePageSessions,
+  getRoutesByTotalTime,
+  getRoutesByTotalTimeViews,
+  getRoutesByTotalUniqueViews,
+  getRoutesByTotalViews,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
-  getViewsCountTimeTotal,
   getViewsCountTotalByMonth,
-  getRoutesByTotalTime,
-  getRoutesByTotalTimeViews,
-  getRoutesByTotalViews,
-  getRoutesByTotalUniqueViews,
+  getViewsCountTimeTotal,
   newPage
 }
