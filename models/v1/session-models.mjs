@@ -6,7 +6,9 @@ import {
   readVisitsCountTotalByDay,
   readVisitsCountTotalByMonth,
   readVisitsCountUnique,
-  readVisitsCountUniqueByMonth
+  readVisitsCountUniqueByMonth,
+  readVisitsFirstTime,
+  readVisitsLastTime
 } from '../../services/v1/session-services.mjs'
 
 const getSinglePageSessionsCountTotal = async (_db, info) => {
@@ -36,8 +38,14 @@ const getSinglePageSessionsCountTotalByMonth = async (_db, info) => {
 const getVisitsCountTotal = async (_db, info) => {
   try {
     const result = await readVisitsCountTotal(_db, info)
+    const visitsFirstTimeResult = await readVisitsFirstTime(_db, info)
+    const visitsLastTimeResult = await readVisitsLastTime(_db, info)
 
-    const data =  { 'totalVisits': result }
+    const data =  {
+      'totalVisits': result,
+      'startDate': visitsFirstTimeResult,
+      'endDate': visitsLastTimeResult
+    }
 
     return { 'status': 'ok', data }
   } catch (error) {
