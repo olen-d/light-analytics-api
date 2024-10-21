@@ -64,11 +64,18 @@ async function readBounceRateTotal (request, reply) {
     const resultVisits = await getVisitsCountTotal(_db, info)
 
     const { data: { totalSinglePageSessions }, } = resultSinglePage
-    const { data: { totalVisits } , } = resultVisits
+    const { data: { totalVisits, startDate, endDate } , } = resultVisits
 
     const bounceRate = totalSinglePageSessions / totalVisits
 
-    reply.send({ 'status': 'ok' , 'data': { bounceRate }})
+    reply.send({
+      'status': 'ok',
+      'data': {
+        bounceRate,
+        startDate,
+        endDate
+      }
+    })
   } catch (error) {
     throw new Error(`Session Controllers Read Bounce Rate Total ${error}`)
   }
