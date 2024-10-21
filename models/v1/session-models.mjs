@@ -80,7 +80,14 @@ const getVisitsCountTotalByMonth = async (_db, info) => {
 const getVisitsCountUnique = async (_db, info) => {
   try {
     const result = await readVisitsCountUnique(_db, info)
-    const data = { 'uniqueVisits': result }
+    const visitsFirstTimeResult = await readVisitsFirstTime(_db, info)
+    const visitsLastTimeResult = await readVisitsLastTime(_db, info)
+  
+    const data = {
+      'uniqueVisits': result,
+      'startDate': visitsFirstTimeResult,
+      'endDate': visitsLastTimeResult
+    }
 
     return { 'status': 'ok', data }
   } catch (error) {
