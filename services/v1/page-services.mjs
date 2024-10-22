@@ -157,6 +157,40 @@ const readViewsCountTotalByMonth = async (_db, info) => {
   }
 }
 
+const readViewsFirstTime = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT created_at FROM pages ORDER BY created_at ASC LIMIT 1'
+    )
+
+    if (rows && rows.length > 0) {
+      const[{ 'created_at': startDate }] = rows
+      return startDate
+    } else {
+      return -99
+    }
+  } catch (error) {
+    throw new Error(`Page Services Read Views First Time ${error}`)
+  }
+}
+
+const readViewsLastTime = async (_db, info) => {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT created_at FROM pages ORDER BY created_at DESC LIMIT 1'
+    )
+
+    if (rows && rows.length > 0) {
+      const[{ 'created_at': endDate }] = rows
+      return endDate
+    } else {
+      return -99
+    }
+  } catch (error) {
+    throw new Error(`Page Services Read Views Last Time ${error}`)
+  }
+}
+
 const readRoutesByTotalTime = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -261,5 +295,7 @@ export {
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
-  readViewsCountTotalByMonth
+  readViewsCountTotalByMonth,
+  readViewsFirstTime,
+  readViewsLastTime
 }
