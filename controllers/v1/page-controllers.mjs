@@ -17,6 +17,8 @@ import {
   newPage
 } from '../../models/v1/page-models.mjs'
 
+import { readViewsFirstTime, readViewsLastTime } from '../../services/v1/page-services.mjs'
+
 // Helper Functions
 const filterQueryString = (getSetting, route) => {
   if (route.indexOf('?') !== -1) {
@@ -171,6 +173,8 @@ async function readTimeOnPageAverage (request, reply) {
   const info = 'all'
 
   try {
+    const resultFirstView = await readViewsFirstTime(_db, info)
+    const resultLastView = await readViewsLastTime(_db, info)
     const resultTimeTotal = await getTimeOnPageTotal(_db, info)
     const resultSessionsTotal = await getSessionsTotal(_db, info)
 
@@ -179,7 +183,12 @@ async function readTimeOnPageAverage (request, reply) {
 
     const timeOnPageAverage = totalTime / totalSessions
 
-    const data = { timeOnPageAverage }
+    const data = {
+      timeOnPageAverage,
+      startDate: resultFirstView,
+      endDate: resultLastView
+    }
+
     const status = 'ok'
 
     reply.send({ status, data })
