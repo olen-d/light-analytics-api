@@ -13,7 +13,9 @@ import {
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTotalByMonth,
-  readViewsCountTimeTotal
+  readViewsCountTimeTotal,
+  readViewsFirstTime,
+  readViewsLastTime
 } from '../../services/v1/page-services.mjs'
 
 const getRoutesBySinglePageSessions = async (_db, info) => {
@@ -67,7 +69,16 @@ const getViewsCountTimeByDay = async (_db, info) => {
 const getViewsCountTimeTotal = async (_db, info) => {
   try {
     const result = await readViewsCountTimeTotal(_db, info)
+    const viewsFirstTimeResult = await readViewsFirstTime(_db, info)
+    const viewsLastTimeResult = await readViewsLastTime(_db, info)
+
     const status = await result != -99 ? 'ok' : 'error'
+
+    if (status === 'ok') {
+      result[0]['start_date'] = viewsFirstTimeResult
+      result[0]['end_date'] = viewsLastTimeResult
+    }
+
     const data = status === 'ok' ? result : null
 
     return { status, data }
