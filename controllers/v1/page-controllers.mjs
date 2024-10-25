@@ -197,6 +197,30 @@ async function readTimeOnPageAverage (request, reply) {
   }
 }
 
+async function readTimePerPageview (request, reply) {
+  const { _db } = this
+  const info = 'all'
+
+  try {
+    const result = await getViewsCountTimeTotal(_db, info)
+
+    const { data: { totalTime, totalViews, startDate, endDate }, } = result
+
+    const timePerPageview = totalTime / totalViews
+
+    reply.send({
+      'status': 'ok',
+      'data': {
+        timePerPageview,
+        startDate,
+        endDate
+      }
+    })
+  } catch (error) {
+    throw new Error(`Page Controllers Read Time Per Pageview ${error}`)
+  }
+}
+
 async function readViewsCountEntry (request, reply) {
   try{
     const { _db } = this
@@ -374,6 +398,7 @@ export {
   readRoutesByTotalUniqueViews,
   readRoutesByTotalViews,
   readTimeOnPageAverage,
+  readTimePerPageview,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
