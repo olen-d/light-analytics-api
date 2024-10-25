@@ -2,13 +2,13 @@
 
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
-  getSessionsTotal,
-  getTimeOnPageTotal,
   getRoutesBySinglePageSessions,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalUniqueViews,
   getRoutesByTotalViews,
+  getSessionsTotal,
+  getTimeOnPageTotal,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
@@ -282,6 +282,32 @@ async function readViewsCountTotalByMonth (req, reply) {
   }
 }
 
+async function readViewsPerVisit (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const resultSessionsTotal = await getSessionsTotal(_db, info)
+    const resultViews = await getViewsCountTimeTotal(_db, info)
+
+    const { data: { totalViews, startDate, endDate }, } = resultViews
+    const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
+
+    const viewsPerVisit = totalViews / totalSessions
+
+    reply.send({
+      'status': 'ok',
+      'data': {
+        viewsPerVisit,
+        startDate,
+        endDate
+      }
+    })
+  } catch (error) {
+    throw new Error(`Page Controllers Read Views Per Visit ${error}`)
+  }
+}
+
 async function readRoutesByTotalTime (req, reply) {
   try {
     const { _db } = this
@@ -352,5 +378,6 @@ export {
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
-  readViewsCountTotalByMonth
+  readViewsCountTotalByMonth,
+  readViewsPerVisit
 }
