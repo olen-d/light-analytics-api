@@ -8,6 +8,7 @@ import {
   readRoutesByTotalUniqueViews,
   readRoutesByTotalViews,
   readTimeOnPageAverage,
+  readTimePerPageview,
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
@@ -29,6 +30,7 @@ export default async function (fastify, opts) {
   fastify.get('/routes/total-unique-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalUniqueViews)
   fastify.get('/summary/by-route', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readContentSummaryByRoute)
   fastify.get('/time-on-pages/average', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readTimeOnPageAverage)
+  fastify.get('/time/per-view', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readTimePerPageview)
   fastify.get('/views/per-visit', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsPerVisit)
   fastify.post('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, addPage)
 }
