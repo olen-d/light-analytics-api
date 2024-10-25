@@ -72,16 +72,13 @@ const getViewsCountTimeTotal = async (_db, info) => {
     const viewsFirstTimeResult = await readViewsFirstTime(_db, info)
     const viewsLastTimeResult = await readViewsLastTime(_db, info)
 
-    const status = await result != -99 ? 'ok' : 'error'
+    const [{ 'total_time': totalTime, 'total_views': totalViews }] = result
 
-    if (status === 'ok') {
-      result[0]['start_date'] = viewsFirstTimeResult
-      result[0]['end_date'] = viewsLastTimeResult
+    if (result !== -99) {
+      return { status: 'ok', data: { totalTime, totalViews, startDate: viewsFirstTimeResult, endDate: viewsLastTimeResult } }
+    } else {
+      return { status: 'error', data: null }
     }
-
-    const data = status === 'ok' ? result : null
-
-    return { status, data }
   } catch (error) {
     throw new Error(`Page Models Get Views Count Time Total ${error}`)
   }
