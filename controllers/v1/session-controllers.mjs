@@ -1,5 +1,6 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
+  getReferrerCount,
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
   getVisitsCountTotal,
@@ -80,6 +81,18 @@ async function readBounceRateTotal (request, reply) {
     })
   } catch (error) {
     throw new Error(`Session Controllers Read Bounce Rate Total ${error}`)
+  }
+}
+
+async function readReferrerCount (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getReferrerCount(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Referrer Count ${error}`)
   }
 }
 
@@ -267,6 +280,7 @@ async function readVisitsCountUniqueByMonth (request, reply) {
 export {
   addSession,
   readBounceRateTotal,
+  readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
   readSummaryByMonth,
