@@ -1,5 +1,6 @@
 import {
   createSession,
+  readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
   readVisitsCountTotal,
@@ -10,6 +11,18 @@ import {
   readVisitsFirstTime,
   readVisitsLastTime
 } from '../../services/v1/session-services.mjs'
+
+const getReferrerCount = async (_db, info) => {
+  try {
+    const result = await readReferrerCount(_db, info)
+
+    const data = { 'referrers': result }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Session Models Get Referrer Count ${error}`)
+  }
+}
 
 const getSinglePageSessionsCountTotal = async (_db, info) => {
   try {
@@ -119,6 +132,7 @@ const newSession = async (_db, info) => {
 }
 
 export {
+  getReferrerCount,
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
   getVisitsCountTotal,

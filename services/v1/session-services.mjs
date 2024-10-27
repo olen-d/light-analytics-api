@@ -23,6 +23,23 @@ const createSession = async (_db, info) => {
   }
 }
 
+const readReferrerCount = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT referrer, COUNT(*) AS count FROM sessions WHERE referrer IS NOT NULL GROUP BY referrer'
+      )
+
+      if (rows && rows.length > 0) {
+        return rows
+      } else {
+        return -99
+      }
+    } catch (error) {
+      throw new Error(`Session Services Read Referrer Count ${error}`)
+    }
+  } // Else get other types, e.g. date ranges
+}
 
 const readSinglePageSessionsCountTotal = async (_db, info) => {
   try {
@@ -232,6 +249,7 @@ const readVisitsLastTime = async (_db, info) => {
 
 export {
   createSession,
+  readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
   readVisitsCountTotal,
