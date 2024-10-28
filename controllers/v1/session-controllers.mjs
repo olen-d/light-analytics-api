@@ -1,5 +1,6 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
+  getLanguageCount,
   getReferrerCount,
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
@@ -81,6 +82,18 @@ async function readBounceRateTotal (request, reply) {
     })
   } catch (error) {
     throw new Error(`Session Controllers Read Bounce Rate Total ${error}`)
+  }
+}
+
+async function readLanguagerCount (request, reply) {
+  try {
+    const { _db } = this
+    const info = 'all'
+
+    const result = await getLanguageCount(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Language Count ${error}`)
   }
 }
 
@@ -280,6 +293,7 @@ async function readVisitsCountUniqueByMonth (request, reply) {
 export {
   addSession,
   readBounceRateTotal,
+  readLanguagerCount,
   readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
