@@ -27,7 +27,7 @@ const readReferrerCount = async (_db, info) => {
   if (info === 'all') {
     try {
       const [rows, fields] = await _db.execute(
-        'SELECT referrer, COUNT(*) AS count FROM sessions WHERE referrer IS NOT NULL GROUP BY referrer'
+        'SELECT referrer, COUNT(*) AS count FROM sessions WHERE referrer IS NOT NULL GROUP BY referrer ORDER BY count DESC'
       )
 
       if (rows && rows.length > 0) {
