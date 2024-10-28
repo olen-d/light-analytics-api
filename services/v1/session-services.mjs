@@ -23,6 +23,24 @@ const createSession = async (_db, info) => {
   }
 }
 
+const readLanguageCount = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT language, COUNT(*) AS count FROM sessions WHERE language IS NOT NULL GROUP BY language ORDER BY count DESC'
+      )
+
+      if (rows && rows.length > 0) {
+        return rows
+      } else {
+        return -99
+      }
+    } catch (error) {
+      throw new Error(`Session Services Read Language Count ${error}`)
+    }
+  } // Else get other types, e.g. date ranges
+}
+
 const readReferrerCount = async (_db, info) => {
   if (info === 'all') {
     try {
@@ -249,6 +267,7 @@ const readVisitsLastTime = async (_db, info) => {
 
 export {
   createSession,
+  readLanguageCount,
   readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,

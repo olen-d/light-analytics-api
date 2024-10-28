@@ -1,5 +1,6 @@
 import {
   createSession,
+  readLanguageCount,
   readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
@@ -11,6 +12,18 @@ import {
   readVisitsFirstTime,
   readVisitsLastTime
 } from '../../services/v1/session-services.mjs'
+
+const getLanguageCount = async (_db, info) => {
+  try {
+    const result = await readLanguageCount(_db, info)
+
+    const data = { 'languages': result }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Session Models Get Language Count ${error}`)
+  }
+}
 
 const getReferrerCount = async (_db, info) => {
   try {
@@ -132,6 +145,7 @@ const newSession = async (_db, info) => {
 }
 
 export {
+  getLanguageCount,
   getReferrerCount,
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
