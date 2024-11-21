@@ -27,28 +27,50 @@ const readRoutesBySinglePageSessions = async (_db, info) => {
 }
 
 const readSessionsTotal = async (_db, info) => {
-  if (info === 'all') {
-    try {
+  try {
+    if (info === 'all') {
       const [rows, fields] = await _db.execute(
         'SELECT COUNT(DISTINCT session_id) AS total_sessions FROM pages'
       )
       return rows && rows.length > 0 ? rows: -99
-    } catch (error) {
-      throw new Error(`Page Services Read Sessions Total ${error}`)
+    } else {
+      const { type } = info
+      if (type === 'dates') {
+        const { endDate, startDate } = info
+
+        const [rows, fields] = await _db.execute(
+          'SELECT COUNT(DISTINCT session_id) AS total_sessions FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)',
+          [startDate, endDate]
+        )
+        return rows && rows.length > 0 ? rows: -99
+      }
     }
+  } catch (error) {
+    throw new Error(`Page Services Read Sessions Total ${error}`)
   }
 }
 
 const readTimeOnPageTotal = async (_db, info) => {
-  if (info === 'all') {
-    try {
+  try {
+    if (info === 'all') {
       const [rows, fields] = await _db.execute(
         'SELECT SUM(time_on_page) AS total_time FROM pages'
       )
       return rows && rows.length > 0 ? rows: -99
-    } catch (error) {
-      throw new Error(`Page Services Read Time On Page Total ${error}`)
+    } else {
+      const { type } = info
+      if (type === 'dates') {
+        const { endDate, startDate } = info
+
+        const [rows, fields] = await _db.execute(
+          'SELECT SUM(time_on_page) AS total_time FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)',
+          [startDate, endDate]
+        )
+        return rows && rows.length > 0 ? rows: -99
+      }
     }
+  } catch (error) {
+    throw new Error(`Page Services Read Time On Page Total ${error}`)
   }
 }
 

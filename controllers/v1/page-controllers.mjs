@@ -170,11 +170,19 @@ async function readContentSummaryByRoute (request, reply) {
 
 async function readTimeOnPageAverage (request, reply) {
   const {_db } = this
-  const info = 'all'
+
+  let info = null
+
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+    info = { type: 'dates', endDate, startDate }
+  }
 
   try {
-    const resultFirstView = await readViewsFirstTime(_db, info)
-    const resultLastView = await readViewsLastTime(_db, info)
+    const resultFirstView = info?.startDate ? info.startDate : await readViewsFirstTime(_db, info)
+    const resultLastView = info?.endDate ? info.endDate : await readViewsLastTime(_db, info)
     const resultTimeTotal = await getTimeOnPageTotal(_db, info)
     const resultSessionsTotal = await getSessionsTotal(_db, info)
 
