@@ -64,8 +64,8 @@ const getSinglePageSessionsCountTotalByMonth = async (_db, info) => {
 const getVisitsCountTotal = async (_db, info) => {
   try {
     const result = await readVisitsCountTotal(_db, info)
-    const visitsFirstTimeResult = await readVisitsFirstTime(_db, info)
-    const visitsLastTimeResult = await readVisitsLastTime(_db, info)
+    const visitsFirstTimeResult = info?.startDate ? info.startDate : await readVisitsFirstTime(_db, info)
+    const visitsLastTimeResult = info?.endDate ? info.endDate : await readVisitsLastTime(_db, info)
 
     const data =  {
       'totalVisits': result,
