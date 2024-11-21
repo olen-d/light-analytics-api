@@ -62,7 +62,15 @@ async function addSession (request, reply) {
 async function readBounceRateTotal (request, reply) {
   try {
     const { _db } = this
-    const info = 'all'
+
+    let info = null
+
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
 
     const resultSinglePage = await getSinglePageSessionsCountTotal(_db, info)
     const resultVisits = await getVisitsCountTotal(_db, info)
@@ -112,7 +120,15 @@ async function readReferrerCount (request, reply) {
 async function readSinglePageSessionsCountTotal (request, reply) {
   try {
     const { _db } = this
-    const info = 'all'
+
+    let info = null
+
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
 
     const result = await getSinglePageSessionsCountTotal(_db, info)
     reply.send(result)
