@@ -61,15 +61,34 @@ const readReferrerCount = async (_db, info) => {
 
 const readSinglePageSessionsCountTotal = async (_db, info) => {
   try {
-    const [rows, fields] = await _db.execute(
-      'select count(*) as count from (select count(*) from (select session_id, route from pages group by session_id, route) as TT GROUP BY session_id HAVING count(*) = 1) as ONLY_ONCE'
-    )
+    if (info === 'all') {
+      const [rows, fields] = await _db.execute(
+        'SELECT COUNT(*) AS count FROM (SELECT COUNT(*) FROM (SELECT session_id, route FROM pages GROUP BY session_id, route) as TT GROUP BY session_id HAVING COUNT(*) = 1) as ONLY_ONCE'
+      )
 
-    if (rows && rows.length > 0) {
-      const [{ count }] = rows
-      return count
+      if (rows && rows.length > 0) {
+        const [{ count }] = rows
+        return count
+      } else {
+        return -99
+      }
     } else {
-      return -99
+      const { type } = info
+      if (type === 'dates') {
+        const { endDate, startDate } = info
+
+        const [rows, fields] = await _db.execute(
+          'SELECT COUNT(*) as count from (SELECT COUNT(*) from (SELECT session_id, route FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?) GROUP BY session_id, route) as TT GROUP BY session_id HAVING COUNT(*) = 1) as ONLY_ONCE',
+          [startDate, endDate]
+        )
+
+        if (rows && rows.length > 0) {
+          const [{ count }] = rows
+          return count
+        } else {
+          return -99
+        }
+      }
     }
   } catch (error) {
     throw new Error(`Session Services Read Single Page Sessions Total ${error}`)
