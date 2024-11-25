@@ -207,7 +207,15 @@ async function readTimeOnPageAverage (request, reply) {
 
 async function readTimePerPageview (request, reply) {
   const { _db } = this
-  const info = 'all'
+
+  let info = null
+
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+    info = { type: 'dates', endDate, startDate }
+  }
 
   try {
     const result = await getViewsCountTimeTotal(_db, info)
