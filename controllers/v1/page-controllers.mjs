@@ -290,10 +290,18 @@ async function readViewsCountTimeByDay (request, reply) {
   }
 }
 
-async function readViewsCountTimeTotal (req, reply) {
+async function readViewsCountTimeTotal (request, reply) {
   try {
     const { _db } = this
-    const info = 'all'
+
+    let info = null
+
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
 
     const result = await getViewsCountTimeTotal(_db, info)
     reply.send(result)
