@@ -276,6 +276,7 @@ async function readViewsCountTimeByDay (request, reply) {
     const { _db } = this
 
     let info = null
+  
     if (Object.keys(request.query).length === 0) {
       info = 'all'
     } else {
@@ -325,7 +326,15 @@ async function readViewsCountTotalByMonth (req, reply) {
 async function readViewsPerVisit (request, reply) {
   try {
     const { _db } = this
-    const info = 'all'
+
+    let info = null
+  
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
 
     const resultSessionsTotal = await getSessionsTotal(_db, info)
     const resultViews = await getViewsCountTimeTotal(_db, info)
