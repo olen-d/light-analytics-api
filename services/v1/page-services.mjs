@@ -124,11 +124,24 @@ const readViewsCountExit = async (_db, info) => {
 
 const readViewsCountTimeTotal = async (_db, info) => {
   try {
+    if (info === 'all') {
     const [rows, fields] = await _db.execute(
       'SELECT SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages'
     )
 
     return rows && rows.length > 0 ? rows : -99
+  } else {
+    const { type } = info
+    if (type === 'dates') {
+      const { endDate, startDate } = info
+
+      const [rows, fields] = await _db.execute(
+        'SELECT SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)',
+        [startDate, endDate]
+      )
+      return rows && rows.length > 0 ? rows : -99
+    }
+  }
   } catch (error) {
     throw new Error(`Page Services Read Views Count Time Total ${error}`)
   }
