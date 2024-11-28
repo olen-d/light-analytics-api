@@ -129,7 +129,7 @@ const readVisitsCountTotal = async (_db, info) => {
     } else {
       const { type } = info
       if (type === 'dates') {
-        const { endDate, startDate } = info
+        const { endDate, startDate } = info;
 
         const [rows, fields] = await _db.execute(
           'SELECT COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?)',
