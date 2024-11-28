@@ -12,6 +12,9 @@ import {
   newSession
 } from '../../models/v1/session-models.mjs'
 
+import { formatUTCDate, getPreviousPeriodDates } from '../../services/v1/date-services.mjs'
+import { readVisitsFirstTime, readVisitsLastTime } from '../../services/v1/session-services.mjs'
+
 async function addSession (request, reply) {
   try {
     const { _db } = this
@@ -67,27 +70,47 @@ async function readBounceRateTotal (request, reply) {
 
     if (Object.keys(request.query).length === 0) {
       info = 'all'
+      const resultSinglePage = await getSinglePageSessionsCountTotal(_db, info)
+      const endDate = await readVisitsLastTime(_db, info)
+      const startDate = await readVisitsFirstTime(_db, info)
+      const resultVisits = await getVisitsCountTotal(_db, info)
+  
+      const { data: { totalSinglePageSessions }, } = resultSinglePage
+      // const { data: { totalVisits, startDate, endDate } , } = resultVisits
+      const { totalVisits } = resultVisits
+  
+      const bounceRate = totalSinglePageSessions / totalVisits
+  
+      reply.send({
+        'status': 'ok',
+        'data': {
+          bounceRate,
+          startDate,
+          endDate
+        }
+      })
     } else {
       const { query: { enddate: endDate, startdate: startDate }, } = request
       info = { type: 'dates', endDate, startDate }
+
+      const resultSinglePage = await getSinglePageSessionsCountTotal(_db, info)
+      const resultVisits = await getVisitsCountTotal(_db, info)
+  
+      const { data: { totalSinglePageSessions }, } = resultSinglePage
+      // const { data: { totalVisits, startDate, endDate } , } = resultVisits
+      const { totalVisits } = resultVisits
+  
+      const bounceRate = totalSinglePageSessions / totalVisits
+  
+      reply.send({
+        'status': 'ok',
+        'data': {
+          bounceRate,
+          startDate,
+          endDate
+        }
+      })
     }
-
-    const resultSinglePage = await getSinglePageSessionsCountTotal(_db, info)
-    const resultVisits = await getVisitsCountTotal(_db, info)
-
-    const { data: { totalSinglePageSessions }, } = resultSinglePage
-    const { data: { totalVisits, startDate, endDate } , } = resultVisits
-
-    const bounceRate = totalSinglePageSessions / totalVisits
-
-    reply.send({
-      'status': 'ok',
-      'data': {
-        bounceRate,
-        startDate,
-        endDate
-      }
-    })
   } catch (error) {
     throw new Error(`Session Controllers Read Bounce Rate Total ${error}`)
   }
@@ -225,20 +248,57 @@ async function readSummaryByMonth (request, reply) {
 }
 
 async function readVisitsCountTotal (request, reply) {
+  const { _db } = this
+
   try {
-    const { _db } = this
-
-    let info = null
-
     if (Object.keys(request.query).length === 0) {
-      info = 'all'
+      const info = 'all'
+
+      const endDate = await readVisitsLastTime(_db, info)
+      const startDate = await readVisitsFirstTime(_db, info)
+      const result = await getVisitsCountTotal(_db, info)
+
+      const { status, totalVisits } = result
+
+      const data =  {
+        totalVisits,
+        startDate,
+        endDate,
+        'totalVisitsPrev': null,
+        'totalVisitsChange': null
+      }
+
+      reply.send({ status, data })
     } else {
       const { query: { enddate: endDate, startdate: startDate }, } = request
-      info = { type: 'dates', endDate, startDate }
-    }
+      const info = { type: 'dates', endDate, startDate }
 
-    const result = await getVisitsCountTotal(_db, info)
-    reply.send(result)
+      const result = await getVisitsCountTotal(_db, info)
+
+      const { status, totalVisits } = result
+
+      const { endDatePrevJs, startDatePrevJs } = getPreviousPeriodDates(startDate, endDate)
+
+      const endDatePrev = formatUTCDate(endDatePrevJs,'mySQLDate')
+      const startDatePrev = formatUTCDate(startDatePrevJs,'mySQLDate')
+
+      const prevInfo = { type: 'dates', 'endDate': endDatePrev, 'startDate': startDatePrev }
+      const prevResult = await getVisitsCountTotal(_db, prevInfo)
+
+      const { prevStatus, totalVisits: totalVisitsPrev } = prevResult
+
+      const totalVisitsChange = ( totalVisits - totalVisitsPrev ) / totalVisitsPrev
+
+      const data =  {
+        totalVisits,
+        startDate,
+        endDate,
+        totalVisitsPrev,
+        totalVisitsChange
+      }
+
+      reply.send({ status, data })
+    }
   } catch (error) {
     throw new Error(`Session Controllers Read Visits Count Total ${error}`)
   }
