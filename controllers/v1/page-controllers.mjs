@@ -17,6 +17,7 @@ import {
   newPage
 } from '../../models/v1/page-models.mjs'
 
+import { formatUTCDate, getPreviousPeriodDates } from '../../services/v1/date-services.mjs'
 import { readViewsFirstTime, readViewsLastTime } from '../../services/v1/page-services.mjs'
 
 // Helper Functions
@@ -171,35 +172,69 @@ async function readContentSummaryByRoute (request, reply) {
 async function readTimeOnPageAverage (request, reply) {
   const {_db } = this
 
-  let info = null
-
-  if (Object.keys(request.query).length === 0) {
-    info = 'all'
-  } else {
-    const { query: { enddate: endDate, startdate: startDate }, } = request
-    info = { type: 'dates', endDate, startDate }
-  }
-
   try {
-    const resultFirstView = info?.startDate ? info.startDate : await readViewsFirstTime(_db, info)
-    const resultLastView = info?.endDate ? info.endDate : await readViewsLastTime(_db, info)
-    const resultTimeTotal = await getTimeOnPageTotal(_db, info)
-    const resultSessionsTotal = await getSessionsTotal(_db, info)
+    if (Object.keys(request.query).length === 0) {
+      const info = 'all'
+      const endDate = await readViewsLastTime(_db, info)
+      const startDate = await readViewsFirstTime(_db, info)
+      const resultTimeTotal = await getTimeOnPageTotal(_db, info)
+      const resultSessionsTotal = await getSessionsTotal(_db, info)
 
-    const { data: [{ 'total_time': totalTime }] } = resultTimeTotal
-    const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
+      const { data: [{ 'total_time': totalTime }] } = resultTimeTotal
+      const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
 
-    const timeOnPageAverage = totalTime / totalSessions
+      const timeOnPageAverage = totalTime / totalSessions
 
-    const data = {
-      timeOnPageAverage,
-      startDate: resultFirstView,
-      endDate: resultLastView
+      const data = {
+        timeOnPageAverage,
+        startDate,
+        endDate,
+        timeOnPageAveragePrev: null,
+        timeOnPageAverageChange: null
+      }
+
+      const status = 'ok'
+
+      reply.send({ status, data })
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      const info = { type: 'dates', endDate, startDate }
+
+      const resultTimeTotal = await getTimeOnPageTotal(_db, info)
+      const resultSessionsTotal = await getSessionsTotal(_db, info)
+
+      const { data: [{ 'total_time': totalTime }] } = resultTimeTotal
+      const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
+
+      const timeOnPageAverage = totalTime / totalSessions
+
+      const { endDatePrevJs, startDatePrevJs } = getPreviousPeriodDates(startDate, endDate)
+
+      const endDatePrev = formatUTCDate(endDatePrevJs,'mySQLDate')
+      const startDatePrev = formatUTCDate(startDatePrevJs,'mySQLDate')
+
+      const prevInfo = { type: 'dates', 'endDate': endDatePrev, 'startDate': startDatePrev }
+      const prevResultTimeTotal = await getTimeOnPageTotal(_db, prevInfo)
+      const prevResultSessionsTotal = await getSessionsTotal(_db, prevInfo)
+
+      const { data: [{ 'total_time': totalTimePrev }] } = prevResultTimeTotal
+      const { data: [{ 'total_sessions': totalSessionsPrev }] } = prevResultSessionsTotal
+
+      const timeOnPageAveragePrev = totalTimePrev / totalSessionsPrev
+      const timeOnPageAverageChange = ( timeOnPageAverage - timeOnPageAveragePrev ) / timeOnPageAveragePrev
+
+      const data = {
+        timeOnPageAverage,
+        startDate,
+        endDate,
+        timeOnPageAveragePrev,
+        timeOnPageAverageChange
+      }
+
+      const status = 'ok'
+
+      reply.send({ status, data })
     }
-
-    const status = 'ok'
-
-    reply.send({ status, data })
   } catch (error) {
     throw new Error(`Page Controllers Read Time On Page Average ${error}`)
   }
