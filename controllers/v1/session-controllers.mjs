@@ -346,17 +346,53 @@ async function readVisitsCountUnique (request, reply) {
   try {
     const { _db } = this
 
-    let info = null
-
     if (Object.keys(request.query).length === 0) {
-      info = 'all'
+      const info = 'all'
+      const endDate = await readVisitsLastTime(_db, info)
+      const startDate = await readVisitsFirstTime(_db, info)
+      const result = await getVisitsCountUnique(_db, info)
+
+      const { status, uniqueVisits } = result
+
+      const data =  {
+        uniqueVisits,
+        startDate,
+        endDate,
+        'uniqueVisitsPrev': null,
+        'uniqueVisitsChange': null
+      }
+
+      reply.send({ status, data })
     } else {
       const { query: { enddate: endDate, startdate: startDate }, } = request
-      info = { type: 'dates', endDate, startDate }
+      const info = { type: 'dates', endDate, startDate }
+
+      const result = await getVisitsCountUnique(_db, info)
+
+      const { status, uniqueVisits } = result
+
+      const { endDatePrevJs, startDatePrevJs } = getPreviousPeriodDates(startDate, endDate)
+
+      const endDatePrev = formatUTCDate(endDatePrevJs,'mySQLDate')
+      const startDatePrev = formatUTCDate(startDatePrevJs,'mySQLDate')
+
+      const prevInfo = { type: 'dates', 'endDate': endDatePrev, 'startDate': startDatePrev }
+      const prevResult = await getVisitsCountUnique(_db, prevInfo)
+
+      const { prevStatus, uniqueVisits: uniqueVisitsPrev } = prevResult
+
+      const uniqueVisitsChange = ( uniqueVisits - uniqueVisitsPrev ) / uniqueVisitsPrev
+
+      const data =  {
+        uniqueVisits,
+        startDate,
+        endDate,
+        uniqueVisitsPrev,
+        uniqueVisitsChange
+      }
+
+      reply.send({ status, data })
     }
-    
-    const result = await getVisitsCountUnique(_db, info)
-    reply.send(result)
   } catch (error) {
     throw new Error(`Session Controllers Read Visits Count Unique ${error}`)
   }
