@@ -338,17 +338,60 @@ async function readViewsCountTimeTotal (request, reply) {
   try {
     const { _db } = this
 
-    let info = null
-
     if (Object.keys(request.query).length === 0) {
-      info = 'all'
+      const info = 'all'
+      const endDate = await readViewsLastTime(_db, info)
+      const startDate = await readViewsFirstTime(_db, info)
+      const result = await getViewsCountTimeTotal(_db, info)
+
+      const { status, data: { totalTime, totalViews }, } = result
+
+      const data = {
+        totalTime,
+        totalViews,
+        startDate,
+        endDate,
+        totalTimePrev: null,
+        totalTimeChange: null,
+        totalViewsPrev: null,
+        totalViewsChange: null
+      }
+
+      reply.send({ status, data })
     } else {
       const { query: { enddate: endDate, startdate: startDate }, } = request
-      info = { type: 'dates', endDate, startDate }
-    }
+      const info = { type: 'dates', endDate, startDate }
 
-    const result = await getViewsCountTimeTotal(_db, info)
-    reply.send(result)
+      const result = await getViewsCountTimeTotal(_db, info)
+
+      const { status, data: { totalTime, totalViews }, } = result
+
+      const { endDatePrevJs, startDatePrevJs } = getPreviousPeriodDates(startDate, endDate)
+
+      const endDatePrev = formatUTCDate(endDatePrevJs,'mySQLDate')
+      const startDatePrev = formatUTCDate(startDatePrevJs,'mySQLDate')
+
+      const prevInfo = { type: 'dates', 'endDate': endDatePrev, 'startDate': startDatePrev }
+      const prevResult = await getViewsCountTimeTotal(_db, prevInfo)
+
+      const { data: { totalTime: totalTimePrev, totalViews: totalViewsPrev }, } = prevResult
+
+      const totalTimeChange = ( totalTime - totalTimePrev ) / totalTimePrev
+      const totalViewsChange = ( totalViews - totalViewsPrev ) / totalViewsPrev
+
+      const data = {
+        totalTime,
+        totalViews,
+        startDate,
+        endDate,
+        totalTimePrev,
+        totalTimeChange,
+        totalViewsPrev,
+        totalViewsChange
+      }
+
+      reply.send({ status, data })
+    }
   } catch (error) {
     throw new Error(`Page Controllers Read Views Count Total Time ${error}`)
   }
