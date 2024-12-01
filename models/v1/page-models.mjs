@@ -69,13 +69,11 @@ const getViewsCountTimeByDay = async (_db, info) => {
 const getViewsCountTimeTotal = async (_db, info) => {
   try {
     const result = await readViewsCountTimeTotal(_db, info)
-    const viewsFirstTimeResult = info?.startDate ? info.startDate : await readViewsFirstTime(_db, info)
-    const viewsLastTimeResult = info?.endDate ? info.endDate : await readViewsLastTime(_db, info)
 
     const [{ 'total_time': totalTime, 'total_views': totalViews }] = result
 
     if (result !== -99) {
-      return { status: 'ok', data: { totalTime, totalViews, startDate: viewsFirstTimeResult, endDate: viewsLastTimeResult } }
+      return { status: 'ok', data: { totalTime, totalViews }, }
     } else {
       return { status: 'error', data: null }
     }

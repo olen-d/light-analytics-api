@@ -242,31 +242,58 @@ async function readTimeOnPageAverage (request, reply) {
 
 async function readTimePerPageview (request, reply) {
   const { _db } = this
-
-  let info = null
-
-  if (Object.keys(request.query).length === 0) {
-    info = 'all'
-  } else {
-    const { query: { enddate: endDate, startdate: startDate }, } = request
-    info = { type: 'dates', endDate, startDate }
-  }
-
   try {
-    const result = await getViewsCountTimeTotal(_db, info)
+    if (Object.keys(request.query).length === 0) {
+      const info = 'all'
+      const endDate = await readViewsLastTime(_db, info)
+      const startDate = await readViewsFirstTime(_db, info)
+      const result = await getViewsCountTimeTotal(_db, info)
 
-    const { data: { totalTime, totalViews, startDate, endDate }, } = result
+      const { status, data: { totalTime, totalViews }, } = result
+  
+      const timePerPageview = totalTime / totalViews
 
-    const timePerPageview = totalTime / totalViews
-
-    reply.send({
-      'status': 'ok',
-      'data': {
+      const data = {
         timePerPageview,
         startDate,
-        endDate
+        endDate,
+        timePerPageviewPrev: null,
+        timePerPageviewChange: null
       }
-    })
+
+      reply.send({ status, data })
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      const info = { type: 'dates', endDate, startDate }
+
+      const result = await getViewsCountTimeTotal(_db, info)
+      const { status, data: { totalTime, totalViews }, } = result
+  
+      const timePerPageview = totalTime / totalViews
+
+      const { endDatePrevJs, startDatePrevJs } = getPreviousPeriodDates(startDate, endDate)
+
+      const endDatePrev = formatUTCDate(endDatePrevJs,'mySQLDate')
+      const startDatePrev = formatUTCDate(startDatePrevJs,'mySQLDate')
+
+      const prevInfo = { type: 'dates', 'endDate': endDatePrev, 'startDate': startDatePrev }
+      const prevResult = await getViewsCountTimeTotal(_db, prevInfo)
+
+      const { data: { totalTime: totalTimePrev, totalViews: totalViewsPrev }, } = prevResult
+
+      const timePerPageviewPrev = totalTimePrev / totalViewsPrev
+      const timePerPageviewChange = ( timePerPageview - timePerPageviewPrev ) / timePerPageviewPrev
+
+      const data = {
+        timePerPageview,
+        startDate,
+        endDate,
+        timePerPageviewPrev,
+        timePerPageviewChange
+      }
+
+      reply.send({ status, data })
+    }
   } catch (error) {
     throw new Error(`Page Controllers Read Time Per Pageview ${error}`)
   }
@@ -410,34 +437,72 @@ async function readViewsCountTotalByMonth (req, reply) {
 }
 
 async function readViewsPerVisit (request, reply) {
+  const { _db } = this
+
   try {
-    const { _db } = this
-
-    let info = null
-  
     if (Object.keys(request.query).length === 0) {
-      info = 'all'
-    } else {
-      const { query: { enddate: endDate, startdate: startDate }, } = request
-      info = { type: 'dates', endDate, startDate }
-    }
+      const info = 'all'
+      const endDate = await readViewsLastTime(_db, info)
+      const startDate = await readViewsFirstTime(_db, info)
+      const resultSessionsTotal = await getSessionsTotal(_db, info)
+      const resultViews = await getViewsCountTimeTotal(_db, info)
+  
+      const { data: { totalViews }, } = resultViews
+      const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
+  
+      const viewsPerVisit = totalViews / totalSessions
 
-    const resultSessionsTotal = await getSessionsTotal(_db, info)
-    const resultViews = await getViewsCountTimeTotal(_db, info)
-
-    const { data: { totalViews, startDate, endDate }, } = resultViews
-    const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
-
-    const viewsPerVisit = totalViews / totalSessions
-
-    reply.send({
-      'status': 'ok',
-      'data': {
+      const data = {
         viewsPerVisit,
         startDate,
-        endDate
+        endDate,
+        viewsPerVisitPrev: null,
+        viewsPerVisitChange: null
       }
-    })
+
+      const status = 'ok'
+
+      reply.send({ status, data })
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      const info = { type: 'dates', endDate, startDate }
+
+      const resultSessionsTotal = await getSessionsTotal(_db, info)
+      const resultViews = await getViewsCountTimeTotal(_db, info)
+
+      const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
+      const { data: { totalViews }, } = resultViews
+
+      const viewsPerVisit = totalViews / totalSessions
+
+      const { endDatePrevJs, startDatePrevJs } = getPreviousPeriodDates(startDate, endDate)
+
+      const endDatePrev = formatUTCDate(endDatePrevJs,'mySQLDate')
+      const startDatePrev = formatUTCDate(startDatePrevJs,'mySQLDate')
+
+      const prevInfo = { type: 'dates', 'endDate': endDatePrev, 'startDate': startDatePrev }
+
+      const prevResultSessionsTotal = await getSessionsTotal(_db, prevInfo)
+      const prevResultViews = await getViewsCountTimeTotal(_db, prevInfo)
+
+      const { data: [{ 'total_sessions': totalSessionsPrev }] } = prevResultSessionsTotal
+      const { data: { totalViews: totalViewsPrev }, } = prevResultViews
+
+      const viewsPerVisitPrev = totalViewsPrev / totalSessionsPrev
+      const viewsPerVisitChange = ( viewsPerVisit - viewsPerVisitPrev ) / viewsPerVisitPrev
+
+      const data = {
+        viewsPerVisit,
+        startDate,
+        endDate,
+        viewsPerVisitPrev,
+        viewsPerVisitChange
+      }
+
+      const status = 'ok'
+
+      reply.send({ status, data })
+    }
   } catch (error) {
     throw new Error(`Page Controllers Read Views Per Visit ${error}`)
   }
