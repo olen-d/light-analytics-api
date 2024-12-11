@@ -1,3 +1,5 @@
+import { formatQueryDateTimeMySql } from './date-services.mjs'
+
 const createPage = async (_db, info) => {
   try {
     const { sessionId, pageStartTime, route, pageName, timeOnPage } = info
@@ -61,10 +63,12 @@ const readTimeOnPageTotal = async (_db, info) => {
       const { type } = info
       if (type === 'dates') {
         const { endDate, startDate } = info
+        const endDateFormatted = formatQueryDateTimeMySql(endDate)
+        const startDateFormatted = formatQueryDateTimeMySql(startDate)
 
         const [rows, fields] = await _db.execute(
           'SELECT SUM(time_on_page) AS total_time FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)',
-          [startDate, endDate]
+          [startDateFormatted, endDateFormatted]
         )
         return rows && rows.length > 0 ? rows: -99
       }
@@ -134,10 +138,12 @@ const readViewsCountTimeTotal = async (_db, info) => {
     const { type } = info
     if (type === 'dates') {
       const { endDate, startDate } = info
+      const endDateFormatted = formatQueryDateTimeMySql(endDate)
+      const startDateFormatted = formatQueryDateTimeMySql(startDate)
 
       const [rows, fields] = await _db.execute(
         'SELECT SUM(time_on_page) AS total_time, COUNT(*) AS total_views FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)',
-        [startDate, endDate]
+        [startDateFormatted, endDateFormatted]
       )
       return rows && rows.length > 0 ? rows : -99
     }

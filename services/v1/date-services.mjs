@@ -1,5 +1,15 @@
 import { format } from "mysql2"
 
+const formatQueryDateTimeMySql = dateString => {
+  if (dateString.includes('T')) {
+    const elements = dateString.split('T')
+    const formatted = elements.join(' ')
+    return formatted
+  } else {
+    return dateString
+  }
+}
+
 const formatUTCDate = (dateObj, formatString) => {
   switch (formatString) {
     case 'mySQLDate':
@@ -30,4 +40,4 @@ const getPreviousPeriodDates = (startDate, endDate) => {
   return { endDatePrevJs, startDatePrevJs }
 }
 
-export { formatUTCDate, getPreviousPeriodDates }
+export { formatQueryDateTimeMySql, formatUTCDate, getPreviousPeriodDates }
