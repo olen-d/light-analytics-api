@@ -1,3 +1,16 @@
+// Helper Functions
+const formatQueryDateTimeMySql = dateString => {
+  if (dateString.includes('T')) {
+    const elements = dateString.split('T')
+    const formatted = elements.join(' ')
+    return formatted
+  } else {
+    return dateString
+  }
+}
+
+// CRUD Functions
+
 const createSession = async (_db, info) => {
   try {
     const {
@@ -76,10 +89,12 @@ const readSinglePageSessionsCountTotal = async (_db, info) => {
       const { type } = info
       if (type === 'dates') {
         const { endDate, startDate } = info
+        const endDateFormatted = formatQueryDateTimeMySql(endDate)
+        const startDateFormatted = formatQueryDateTimeMySql(startDate)
 
         const [rows, fields] = await _db.execute(
           'SELECT COUNT(*) as count from (SELECT COUNT(*) from (SELECT session_id, route FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?) GROUP BY session_id, route) as TT GROUP BY session_id HAVING COUNT(*) = 1) as ONLY_ONCE',
-          [startDate, endDate]
+          [startDateFormatted, endDateFormatted]
         )
 
         if (rows && rows.length > 0) {
@@ -130,10 +145,12 @@ const readVisitsCountTotal = async (_db, info) => {
       const { type } = info
       if (type === 'dates') {
         const { endDate, startDate } = info;
+        const endDateFormatted = formatQueryDateTimeMySql(endDate)
+        const startDateFormatted = formatQueryDateTimeMySql(startDate)
 
         const [rows, fields] = await _db.execute(
           'SELECT COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?)',
-          [startDate, endDate]
+          [startDateFormatted, endDateFormatted]
         )
 
         if (rows && rows.length > 0) {
@@ -234,10 +251,12 @@ const readVisitsCountUnique = async (_db, info) => {
       const { type } = info
       if (type === 'dates') {
         const { endDate, startDate } = info
+        const endDateFormatted = formatQueryDateTimeMySql(endDate)
+        const startDateFormatted = formatQueryDateTimeMySql(startDate)
 
         const [rows, fields] = await _db.execute(
           'SELECT COUNT(distinct client_ip) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?)',
-          [startDate, endDate]
+          [startDateFormatted, endDateFormatted]
         )
 
         if (rows && rows.length > 0) {
