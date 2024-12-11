@@ -1,15 +1,4 @@
-// Helper Functions
-const formatQueryDateTimeMySql = dateString => {
-  if (dateString.includes('T')) {
-    const elements = dateString.split('T')
-    const formatted = elements.join(' ')
-    return formatted
-  } else {
-    return dateString
-  }
-}
-
-// CRUD Functions
+import { formatQueryDateTimeMySql } from './date-services.mjs'
 
 const createSession = async (_db, info) => {
   try {
