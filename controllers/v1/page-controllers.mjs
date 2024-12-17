@@ -521,19 +521,20 @@ async function readRoutesByTotalTime (req, reply) {
 }
 
 async function readRoutesByTotalTimeViews (request, reply) {
+  const { _db } = this
+
+  const info = {}
+  if (Object.keys(request.query).length === 0) {
+    info.all = true
+  } else {
+    const { query: { enddate: endDate, levels, startdate: startDate }, } = request
+
+    info.endDate = endDate || false
+    info.levels = levels || false
+    info.startDate = startDate || false
+  }
+
   try {
-    const { _db } = this
-
-    const info = {}
-    if (Object.keys(request.query).length === 0) {
-      info.all = true
-    } else {
-      const { query: { enddate: endDate, levels, startdate: startDate }, } = request
-
-      info.endDate = endDate || false
-      info.levels = levels || false
-      info.startDate = startDate || false
-    }
     const result = await getRoutesByTotalTimeViews(_db, info)
     reply.send(result)
   } catch (error) {
@@ -542,10 +543,20 @@ async function readRoutesByTotalTimeViews (request, reply) {
 }
 
 async function readRoutesByTotalViews (request, reply) {
-  try {
-    const { _db } = this
-    const info = 'all'
+  const { _db } = this
 
+  const info = {}
+  if (Object.keys(request.query).length === 0) {
+    info.all = true
+  } else {
+    const { query: { enddate: endDate, levels, startdate: startDate }, } = request
+
+    info.endDate = endDate || false
+    info.levels = levels || false
+    info.startDate = startDate || false
+  }
+
+  try {
     const result = await getRoutesByTotalViews(_db, info)
     reply.send(result)
   } catch (error) {
