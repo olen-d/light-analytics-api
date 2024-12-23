@@ -2,6 +2,7 @@
 
 import {
   createPage,
+  readRouteComponentsByTotalViews,
   readRoutesBySinglePageSessions,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
@@ -94,6 +95,18 @@ const getViewsCountTotalByMonth = async(_db, info) =>{
   }
 }
 
+const getRouteComponentsByTotalViews = async (_db, info) => {
+  try {
+    const result = await readRouteComponentsByTotalViews(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Route Components by Total Views ${error}`)
+  }
+}
+
 const getRoutesByTotalTime = async (_db, info) => {
   try {
     const result = await readRoutesByTotalTime(_db, info)
@@ -177,6 +190,7 @@ const newPage = async (_db, info) => {
 export {
   getSessionsTotal,
   getTimeOnPageTotal,
+  getRouteComponentsByTotalViews,
   getRoutesBySinglePageSessions,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
