@@ -3,6 +3,7 @@
 import {
   createPage,
   readRouteComponentsByTotalViews,
+  readRouteComponentsByTotalTime,
   readRoutesBySinglePageSessions,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
@@ -107,6 +108,23 @@ const getRouteComponentsByTotalViews = async (_db, info) => {
   }
 }
 
+const getRouteComponentsByTotalTime = async (_db, info) => {
+  try {
+    const result = await readRouteComponentsByTotalTime(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? result : null
+
+    const dataTimeToNumber = data.map(element => {
+      element['total_time'] = Number(element['total_time'])
+      return element
+    })
+
+    return { status, data: dataTimeToNumber }
+  } catch (error) {
+    throw new Error(`Page Models Get Route Components by Total Time ${error}`)
+  }
+}
+
 const getRoutesByTotalTime = async (_db, info) => {
   try {
     const result = await readRoutesByTotalTime(_db, info)
@@ -191,6 +209,7 @@ export {
   getSessionsTotal,
   getTimeOnPageTotal,
   getRouteComponentsByTotalViews,
+  getRouteComponentsByTotalTime,
   getRoutesBySinglePageSessions,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,

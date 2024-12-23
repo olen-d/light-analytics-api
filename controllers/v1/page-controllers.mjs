@@ -3,6 +3,7 @@
 import { sanitizeAll, trimAll } from '../../services/v1/input.mjs'
 import {
   getRouteComponentsByTotalViews,
+  getRouteComponentsByTotalTime,
   getRoutesBySinglePageSessions,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
@@ -537,6 +538,34 @@ async function acquireRouteComponentsByTotalViews (request, reply) {
   }
 }
 
+async function acquireRouteComponentsByTotalTime (request, reply) {
+  const { _db } = this
+
+  const info = {}
+  if(Object.keys(request.query).length === 1) {
+    const { query: { componentName }, } = request
+
+    info.all = true
+    info.component = componentName // TODO: Sanitize component nane
+  } else if(Object.keys(request.query).length > 1) {
+    const { query: { componentName: component, enddate: endDate, startdate: startDate }, } = request
+
+    info.type= 'dates'
+    info.component = component
+    info.endDate = endDate
+    info.startDate = startDate
+  } else {
+    // TOOD Return missing parameter error
+  }
+
+  try {
+    const result = await getRouteComponentsByTotalTime(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Aquire Route Components by Total Time ${error}`)
+  }
+}
+
 async function readRoutesByTotalTime (req, reply) {
   try {
     const { _db } = this
@@ -606,6 +635,7 @@ async function readRoutesByTotalUniqueViews (request, reply) {
 }
 
 export {
+  acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,
   addPage,
   readContentSummaryByRoute,
