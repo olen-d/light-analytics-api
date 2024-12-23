@@ -1,5 +1,6 @@
 'use strict'
 import {
+  acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,
   addPage,
   readContentSummaryByRoute,
@@ -29,6 +30,7 @@ export default async function (fastify, opts) {
   fastify.get('/routes/total-time-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTimeViews)
   fastify.get('/routes/total-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalViews)
   fastify.get('/routes/total-unique-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalUniqueViews)
+  fastify.get('/routes/components/total-time', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireRouteComponentsByTotalTime)
   fastify.get('/routes/components/total-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireRouteComponentsByTotalViews)
   fastify.get('/summary/by-route', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readContentSummaryByRoute)
   fastify.get('/time-on-pages/average', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readTimeOnPageAverage)
