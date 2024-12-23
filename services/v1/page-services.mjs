@@ -232,6 +232,37 @@ const readViewsLastTime = async (_db, info) => {
   }
 }
 
+const readRouteComponentsByTotalViews = async (_db, info) => {
+  const { component } = info
+  const componentDelimiter = `/${component}/`
+  const componentExpression = `${componentDelimiter}%`
+
+  try {
+    if (info.all) {
+      const [rows, fields] = await _db.execute(
+        'SELECT SUBSTRING_INDEX(route, ?, -1) as component_summary, COUNT(*) AS total_views FROM (SELECT route FROM pages WHERE route LIKE ?) AS t1 GROUP BY component_summary ORDER BY total_views DESC',
+        [componentDelimiter, componentExpression]
+      )
+
+      return rows && rows.length > 0 ? rows : -99
+    } else {
+      const { type } = info
+      if (type === 'dates') {
+        const { endDate, startDate} = info
+        const [rows, fields] = await _db.execute(
+          'SELECT SUBSTRING_INDEX(route, ?, -1) as component_summary, COUNT(*) AS total_views FROM (SELECT created_at, route FROM pages WHERE route LIKE ? AND (DATE(created_at) BETWEEN ? AND ?)) AS t1 GROUP BY component_summary ORDER BY total_views DESC',
+          [componentDelimiter, componentExpression, startDate, endDate]
+        )
+  
+        return rows && rows.length > 0 ? rows : -99
+      }
+    }
+  } catch (error) {
+    throw new Error(`Page Services Read Route Components by Total Views ${error}`)
+  }
+// SELECT SUBSTRING_INDEX(route, '/courses/', -1) as route_summary, COUNT(*) AS total_views FROM (SELECT created_at, route FROM pages WHERE route LIKE '/courses/%') AS t1 GROUP BY route_summary ORDER BY total_views DESC
+}
+
 const readRoutesByTotalTime = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -348,6 +379,7 @@ const readRoutesByTotalUniqueViews = async (_db, info) => {
 
 export {
   createPage,
+  readRouteComponentsByTotalViews,
   readRoutesBySinglePageSessions,
   readRoutesByTotalTime,
   readRoutesByTotalTimeViews,
