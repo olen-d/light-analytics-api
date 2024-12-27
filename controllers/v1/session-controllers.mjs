@@ -15,9 +15,47 @@ import {
 import { formatUTCDate, getPreviousPeriodDates } from '../../services/v1/date-services.mjs'
 import { readVisitsFirstTime, readVisitsLastTime } from '../../services/v1/session-services.mjs'
 
+// Helper Functions
+const filterQueryString = (getSetting, route) => {
+  if (route.indexOf('?') !== -1) {
+    const excludedURLQueryParameters = getSetting('excludedURLQueryParameters')
+    if (excludedURLQueryParameters) {
+      const parameters = excludedURLQueryParameters.split(',')
+      const [path, queryParameters] = route.split('?')
+      if (queryParameters.indexOf('&') !== -1) {
+        const queryParametersList = queryParameters.split('&')
+
+        const filteredQueryParametersList = queryParametersList.filter(queryParameter => {
+          const matches = matchExcludedURLQueryParameters(parameters, queryParameter)
+          return !matches.length > 0
+        })
+        const filteredRoute = filteredQueryParametersList.length > 0 ? `${path}?${filteredQueryParametersList.join('&')}` : path
+        return filteredRoute
+      } else {
+        const matches = matchExcludedURLQueryParameters(parameters, queryParameters)
+        const filteredRoute = matches.length === 0 ? `${path}?${queryParameters}` : path
+        return filteredRoute
+      }
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+
+const matchExcludedURLQueryParameters = (parameters, queryParameter) => {
+  const matches = parameters.filter(parameter => {
+    const regex = new RegExp(`${parameter}=`, 'i')
+    const test = regex.test(queryParameter)
+    return test
+  })
+  return matches
+}
+
 async function addSession (request, reply) {
   try {
-    const { _db } = this
+    const { _db, getSetting } = this
     const { body, ip, headers } = request
     const clientIp = headers['x-real-ip'] ? headers['x-real-ip'] : ip
     const trimmed = trimAll(body)
@@ -54,6 +92,9 @@ async function addSession (request, reply) {
       timezone,
       userAgent
     }
+
+    const newReferrer = filterQueryString(getSetting, info.referrer)
+    if (newReferrer) { info.referrer = newReferrer }
 
     const result = await newSession(_db, info)
     reply.send(result)
