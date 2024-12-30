@@ -188,6 +188,34 @@ const readVisitsCountTotalByDay = async(_db, info) => {
   }
 }
 
+const readVisitsCountTotalByHour = async(_db, info) => {
+ if (info === 'all') {
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT DATE_FORMAT(created_at, \'%Y-%m-%dH%H\') AS hour, COUNT(*) AS count FROM sessions GROUP BY hour'
+    )
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error(`Session Services Read Visits Count Total By Hour (All) ${error}`)
+  }
+ } else {
+  // WHERE (DATE(created_at) BETWEEN ? AND ?)
+  const { type } = info
+  if (type === 'dates') {
+    const { endDate, startDate } = info
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT DATE_FORMAT(created_at, \'%Y-%m-%dH%H\') AS hour, COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?) GROUP BY hour',
+        [startDate, endDate]
+      )
+      return rows && rows.length > 0 ? rows : -99
+    } catch (error) {
+      throw new Error(`Session Services Read Visits Count Total By Hour (Dates) ${error}`)
+    }
+  }
+ }
+}
+
 const readVisitsCountTotalByMonth = async(_db, info) => {
   if (info === 'all') {
     try {
@@ -338,6 +366,7 @@ export {
   readSinglePageSessionsCountTotalByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
+  readVisitsCountTotalByHour,
   readVisitsCountTotalByMonth,
   readVisitsCountUnique,
   readVisitsCountUniqueByMonth,
