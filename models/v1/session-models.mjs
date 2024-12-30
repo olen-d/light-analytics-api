@@ -6,6 +6,7 @@ import {
   readSinglePageSessionsCountTotalByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
+  readVisitsCountTotalByHour,
   readVisitsCountTotalByMonth,
   readVisitsCountUnique,
   readVisitsCountUniqueByMonth,
@@ -83,6 +84,18 @@ const getVisitsCountTotalByDay = async (_db, info) => {
   }
 }
 
+const getVisitsCountTotalByHour = async (_db, info) => {
+  try {
+    const result = await readVisitsCountTotalByHour(_db, info)
+
+    const data =  { 'totalVisitsByHour': result }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Session Models Get Visits Count Total By Hour ${error}`)
+  }
+}
+
 const getVisitsCountTotalByMonth = async (_db, info) => {
   try {
     const result = await readVisitsCountTotalByMonth(_db, info)
@@ -135,6 +148,7 @@ export {
   getSinglePageSessionsCountTotalByMonth,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
+  getVisitsCountTotalByHour,
   getVisitsCountTotalByMonth,
   getVisitsCountUnique,
   getVisitsCountUniqueByMonth,

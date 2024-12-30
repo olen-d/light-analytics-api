@@ -6,6 +6,7 @@ import {
   getSinglePageSessionsCountTotalByMonth,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
+  getVisitsCountTotalByHour,
   getVisitsCountTotalByMonth,
   getVisitsCountUnique,
   getVisitsCountUniqueByMonth,
@@ -379,6 +380,24 @@ async function readVisitsCountTotalByDay (request, reply) {
   }
 }
 
+async function acquireVisitsCountTotalByHour (request, reply) {
+  try {
+    const { _db } = this
+
+    let info = null
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
+    const result = await getVisitsCountTotalByHour(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Visits Count Total By Hour ${error}`)
+  }
+}
+
 async function readVisitsCountTotalByMonth (request, reply) {
   const { _db } = this
 
@@ -476,6 +495,7 @@ async function readVisitsCountUniqueByMonth (request, reply) {
 }
 
 export {
+  acquireVisitsCountTotalByHour,
   addSession,
   readBounceRateTotal,
   readLanguagerCount,
