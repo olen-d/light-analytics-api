@@ -14,6 +14,7 @@ import {
   readViewsCountEntry,
   readViewsCountExit,
   readViewsCountTimeByDay,
+  readViewsCountTotalByHour,
   readViewsCountTotalByMonth,
   readViewsCountTimeTotal,
   readViewsFirstTime,
@@ -81,6 +82,18 @@ const getViewsCountTimeTotal = async (_db, info) => {
     }
   } catch (error) {
     throw new Error(`Page Models Get Views Count Time Total ${error}`)
+  }
+}
+
+const getViewsCountTotalByHour = async(_db, info) =>{
+  try {
+    const result = await readViewsCountTotalByHour(_db, info)
+    const status = await result != -99 ? 'ok' : 'error'
+    const data = status === 'ok' ? { totalViewsByHour: result } : null
+
+    return { status, data }
+  } catch (error) {
+    throw new Error(`Page Models Get Views Count Total By Hour ${error}`)
   }
 }
 
@@ -218,6 +231,7 @@ export {
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
+  getViewsCountTotalByHour,
   getViewsCountTotalByMonth,
   getViewsCountTimeTotal,
   newPage

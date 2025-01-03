@@ -183,6 +183,33 @@ const readViewsCountTimeByDay = async (_db, info) => {
   }
 }
 
+const readViewsCountTotalByHour = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT DATE_FORMAT(created_at, \'%Y-%m-%dH%H\') AS hour, COUNT(*) AS count FROM pages GROUP BY hour'
+      )
+      return rows && rows.length > 0 ? rows : -99
+    } catch (error) {
+      throw new Error(`Page Services Read Views Count Total By Hour (All) ${error}`)
+    }
+   } else {
+    const { type } = info
+    if (type === 'dates') {
+      const { endDate, startDate } = info
+      try {
+        const [rows, fields] = await _db.execute(
+          'SELECT DATE_FORMAT(created_at, \'%Y-%m-%dH%H\') AS hour, COUNT(*) AS count FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?) GROUP BY hour',
+          [startDate, endDate]
+        )
+        return rows && rows.length > 0 ? rows : -99
+      } catch (error) {
+        throw new Error(`Page Services Read Views Count Total By Hour (Dates) ${error}`)
+      }
+    }
+   }
+}
+
 const readViewsCountTotalByMonth = async (_db, info) => {
   if (info === 'all') {
     try {
@@ -421,6 +448,7 @@ export {
   readViewsCountExit,
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
+  readViewsCountTotalByHour,
   readViewsCountTotalByMonth,
   readViewsFirstTime,
   readViewsLastTime
