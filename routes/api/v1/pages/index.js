@@ -2,6 +2,7 @@
 import {
   acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,
+  acquireViewsCountTotalByHour,
   addPage,
   readContentSummaryByRoute,
   readRoutesBySinglePageSessions,
@@ -23,6 +24,7 @@ export default async function (fastify, opts) {
   fastify.get('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTimeTotal)
   fastify.get('/single-page', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesBySinglePageSessions)
   fastify.get('/by-day', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTimeByDay)
+  fastify.get('/by-hour', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireViewsCountTotalByHour)
   fastify.get('/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTotalByMonth)
   fastify.get('/entry', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountEntry)
   fastify.get('/exit', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountExit)

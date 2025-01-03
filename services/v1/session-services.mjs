@@ -199,7 +199,6 @@ const readVisitsCountTotalByHour = async(_db, info) => {
     throw new Error(`Session Services Read Visits Count Total By Hour (All) ${error}`)
   }
  } else {
-  // WHERE (DATE(created_at) BETWEEN ? AND ?)
   const { type } = info
   if (type === 'dates') {
     const { endDate, startDate } = info

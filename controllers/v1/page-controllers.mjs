@@ -14,6 +14,7 @@ import {
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
+  getViewsCountTotalByHour,
   getViewsCountTotalByMonth,
   getViewsCountTimeTotal,
   newPage
@@ -58,6 +59,26 @@ const matchExcludedURLQueryParameters = (parameters, queryParameter) => {
     return test
   })
   return matches
+}
+
+async function acquireViewsCountTotalByHour (request, reply) {
+  const { _db } = this
+
+  let info = null
+
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+    info = { type: 'dates', endDate, startDate }
+  }
+
+  try {
+    const result = await getViewsCountTotalByHour(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Acquire Views Count Total By Hour ${error}`)
+  }
 }
 
 async function addPage (request, reply) {
@@ -637,6 +658,7 @@ async function readRoutesByTotalUniqueViews (request, reply) {
 export {
   acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,
+  acquireViewsCountTotalByHour,
   addPage,
   readContentSummaryByRoute,
   readRoutesBySinglePageSessions,
