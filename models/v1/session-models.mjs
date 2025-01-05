@@ -1,9 +1,12 @@
+import { v4 as uuidv4 } from 'uuid'
+
 import {
   createSession,
   readLanguageCount,
   readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
+  readStatisticDateRange,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByHour,
@@ -14,6 +17,16 @@ import {
   readVisitsLastTime
 } from '../../services/v1/session-services.mjs'
 
+// Helper functions
+// Useful for items that come back from the database without and Id, e.g. anything resulting from a GROUP BY
+const addUniqueIds = data => {
+  const dataWithUniqueIds = data.map(element => {
+    return Object.assign({ id: uuidv4()}, element)
+  })
+  return dataWithUniqueIds
+}
+
+// Exports
 const getLanguageCount = async (_db, info) => {
   try {
     const result = await readLanguageCount(_db, info)
@@ -29,8 +42,8 @@ const getLanguageCount = async (_db, info) => {
 const getReferrerCount = async (_db, info) => {
   try {
     const result = await readReferrerCount(_db, info)
-
-    const data = { 'referrers': result }
+    const resultWithUniqueIds = addUniqueIds(result)
+    const data = { 'referrers': resultWithUniqueIds }
 
     return { 'status': 'ok', data }
   } catch (error) {
@@ -59,6 +72,16 @@ const getSinglePageSessionsCountTotalByMonth = async (_db, info) => {
     return { 'status': 'ok', data }
   } catch (error) {
     throw new Error(`Session Models Get Single Page Sessions Count Total By Month ${error}`)
+  }
+}
+
+const getStatisticDateRange = async (_db, info) => {
+  try {
+    const result = await readStatisticDateRange(_db, info)
+
+    return { 'status': 'ok', data: result }
+  } catch (error) {
+    throw new Error(`Session Models Get Statistic Date Range (${info.statistic}) ${error}`)
   }
 }
 
@@ -146,6 +169,7 @@ export {
   getReferrerCount,
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
+  getStatisticDateRange,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
   getVisitsCountTotalByHour,

@@ -1,5 +1,6 @@
 'use strict'
 import {
+  acquireStatisticDateRange,
   acquireVisitsCountTotalByHour,
   addSession,
   readBounceRateTotal,
@@ -21,6 +22,7 @@ export default async function (fastify, opts) {
   fastify.get('/by-day', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotalByDay)
   fastify.get('/by-hour', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireVisitsCountTotalByHour)
   fastify.get('/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotalByMonth)
+  fastify.get('/date-range', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireStatisticDateRange)
   fastify.get('/languages', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readLanguagerCount)
   fastify.get('/referrers', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readReferrerCount)
   fastify.get('/single-page', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readSinglePageSessionsCountTotal)
