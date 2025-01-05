@@ -45,7 +45,16 @@ const getReferrerCount = async (_db, info) => {
     const resultWithUniqueIds = addUniqueIds(result)
     const data = { 'referrers': resultWithUniqueIds }
 
-    return { 'status': 'ok', data }
+    const infoDateRange = { all: true, statistic: 'referrer' }
+    const resultDateRange = await readStatisticDateRange(_db, infoDateRange)
+
+    const referrerDateRange = resultDateRange.map(element => {
+      return element['created_at']
+    })
+
+    const [startDate, endDate] = referrerDateRange
+
+    return { 'status': 'ok', data, meta: { startDate, endDate } }
   } catch (error) {
     throw new Error(`Session Models Get Referrer Count ${error}`)
   }
