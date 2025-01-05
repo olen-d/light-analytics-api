@@ -155,6 +155,28 @@ const readVisitsCountTotal = async (_db, info) => {
   }
 }
 
+const readStatisticDateRange = async (_db, info) => {
+  if (info.all) {
+    const { statistic } = info
+    const validStatistics = [
+      'referrer'
+    ]
+
+    if (validStatistics.findIndex(element => element === statistic) === -1) {
+      throw new Error('Invalid statistic provided for Read Statistic Date Range.')
+    }
+
+    try {
+      const [rows, fields] = await _db.execute(
+        `(SELECT id, created_at FROM sessions WHERE ${statistic} IS NOT NULL ORDER BY created_at ASC LIMIT 1) UNION (SELECT id, created_at FROM sessions WHERE ${statistic} IS NOT NULL ORDER BY created_at DESC LIMIT 1)`
+      )
+      return rows && rows.length > 0 ? rows : -99
+    } catch (error) {
+      throw new Error(`Session Services Read ${info.statistic} Date Range ${error}`)
+    }
+  }
+}
+
 const readVisitsCountTotalByDay = async(_db, info) => {
   try {
     if (info === 'all') {
@@ -363,6 +385,7 @@ export {
   readReferrerCount,
   readSinglePageSessionsCountTotal,
   readSinglePageSessionsCountTotalByMonth,
+  readStatisticDateRange,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
   readVisitsCountTotalByHour,

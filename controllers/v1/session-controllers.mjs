@@ -4,6 +4,7 @@ import {
   getReferrerCount,
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
+  getStatisticDateRange,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
   getVisitsCountTotalByHour,
@@ -52,6 +53,20 @@ const matchExcludedURLQueryParameters = (parameters, queryParameter) => {
     return test
   })
   return matches
+}
+
+async function acquireStatisticDateRange (request, reply) {
+  const { _db } = this
+
+  const { query: { statistic }, } = request
+  const info = { all: true, statistic }
+
+  try {
+    const result = await getStatisticDateRange(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Acquire Statistic Date Range (${statistic}) ${error}`)
+  }
 }
 
 async function addSession (request, reply) {
@@ -495,6 +510,7 @@ async function readVisitsCountUniqueByMonth (request, reply) {
 }
 
 export {
+  acquireStatisticDateRange,
   acquireVisitsCountTotalByHour,
   addSession,
   readBounceRateTotal,

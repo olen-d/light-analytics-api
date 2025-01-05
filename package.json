@@ -34,7 +34,8 @@
     "fastify-cli": "^5.8.0",
     "fastify-plugin": "^4.0.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.6.1"
+    "mysql2": "^3.6.1",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "tap": "^16.1.0"
