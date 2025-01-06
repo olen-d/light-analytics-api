@@ -59,7 +59,7 @@ async function acquireStatisticDateRange (request, reply) {
   const { _db } = this
 
   const { query: { statistic }, } = request
-  const info = { all: true, statistic }
+  const info = { statistic }
 
   try {
     const result = await getStatisticDateRange(_db, info)
@@ -204,7 +204,15 @@ async function readLanguagerCount (request, reply) {
 async function readReferrerCount (request, reply) {
   try {
     const { _db } = this
-    const info = 'all'
+
+    let info = null
+
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
 
     const result = await getReferrerCount(_db, info)
     reply.send(result)
