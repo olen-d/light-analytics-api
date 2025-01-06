@@ -49,16 +49,24 @@ const readReferrerCount = async (_db, info) => {
       const [rows, fields] = await _db.execute(
         'SELECT referrer, COUNT(*) AS count FROM sessions WHERE referrer IS NOT NULL GROUP BY referrer ORDER BY count DESC'
       )
-
-      if (rows && rows.length > 0) {
-        return rows
-      } else {
-        return -99
-      }
+      return rows && rows.length > 0 ? rows : -99
     } catch (error) {
       throw new Error(`Session Services Read Referrer Count ${error}`)
     }
-  } // Else get other types, e.g. date ranges
+  } else {
+    const { type } = info
+    if (type === 'dates') {
+      const { endDate, startDate } = info;
+      const endDateFormatted = formatQueryDateTimeMySql(endDate)
+      const startDateFormatted = formatQueryDateTimeMySql(startDate)
+
+      const [rows, fields] = await _db.execute(
+        'SELECT referrer, COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?) AND referrer IS NOT NULL GROUP BY referrer ORDER BY count DESC',
+        [startDateFormatted, endDateFormatted]
+      )
+      return rows && rows.length > 0 ? rows : -99
+    }
+  }
 }
 
 const readSinglePageSessionsCountTotal = async (_db, info) => {
@@ -156,24 +164,22 @@ const readVisitsCountTotal = async (_db, info) => {
 }
 
 const readStatisticDateRange = async (_db, info) => {
-  if (info.all) {
-    const { statistic } = info
-    const validStatistics = [
-      'referrer'
-    ]
+  const { statistic } = info
+  const validStatistics = [
+    'referrer'
+  ]
 
-    if (validStatistics.findIndex(element => element === statistic) === -1) {
-      throw new Error('Invalid statistic provided for Read Statistic Date Range.')
-    }
+  if (validStatistics.findIndex(element => element === statistic) === -1) {
+    throw new Error('Invalid statistic provided for Read Statistic Date Range.')
+  }
 
-    try {
-      const [rows, fields] = await _db.execute(
-        `(SELECT id, created_at FROM sessions WHERE ${statistic} IS NOT NULL ORDER BY created_at ASC LIMIT 1) UNION (SELECT id, created_at FROM sessions WHERE ${statistic} IS NOT NULL ORDER BY created_at DESC LIMIT 1)`
-      )
-      return rows && rows.length > 0 ? rows : -99
-    } catch (error) {
-      throw new Error(`Session Services Read ${info.statistic} Date Range ${error}`)
-    }
+  try {
+    const [rows, fields] = await _db.execute(
+      `(SELECT id, created_at FROM sessions WHERE ${statistic} IS NOT NULL ORDER BY created_at ASC LIMIT 1) UNION (SELECT id, created_at FROM sessions WHERE ${statistic} IS NOT NULL ORDER BY created_at DESC LIMIT 1)`
+    )
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error(`Session Services Read ${info.statistic} Date Range ${error}`)
   }
 }
 
