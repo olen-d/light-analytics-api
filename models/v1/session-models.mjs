@@ -30,10 +30,24 @@ const addUniqueIds = data => {
 const getLanguageCount = async (_db, info) => {
   try {
     const result = await readLanguageCount(_db, info)
+    const resultWithUniqueIds = addUniqueIds(result)
+    const data = { 'languages': resultWithUniqueIds }
 
-    const data = { 'languages': result }
+    if (info === 'all')
+      {
+        const infoDateRange = { all: true, statistic: 'language' }
+        const resultDateRange = await readStatisticDateRange(_db, infoDateRange)
+    
+        const referrerDateRange = resultDateRange.map(element => {
+          return element['created_at']
+        })
+    
+        const [startDate, endDate] = referrerDateRange
 
-    return { 'status': 'ok', data }
+        return { 'status': 'ok', data, meta: { startDate, endDate } }
+      } else {
+        return { 'status': 'ok', data }
+      }
   } catch (error) {
     throw new Error(`Session Models Get Language Count ${error}`)
   }

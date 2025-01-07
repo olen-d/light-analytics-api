@@ -32,15 +32,27 @@ const readLanguageCount = async (_db, info) => {
         'SELECT language, COUNT(*) AS count FROM sessions WHERE language IS NOT NULL GROUP BY language ORDER BY count DESC'
       )
 
-      if (rows && rows.length > 0) {
-        return rows
-      } else {
-        return -99
-      }
+      return rows && rows.length > 0 ? rows : -99
     } catch (error) {
       throw new Error(`Session Services Read Language Count ${error}`)
     }
-  } // Else get other types, e.g. date ranges
+  } else {
+    const { type } = info
+    if (type === 'dates') {
+      const { endDate, startDate } = info
+      const endDateFormatted = formatQueryDateTimeMySql(endDate)
+      const startDateFormatted = formatQueryDateTimeMySql(startDate)
+      try {
+        const [rows, fields] = await _db.execute(
+          'SELECT language, COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?) AND language IS NOT NULL GROUP BY language ORDER BY count DESC',
+          [startDateFormatted, endDateFormatted]
+        )
+        return rows && rows.length > 0 ? rows : -99
+      } catch (error) {
+        throw new Error(`Session Services Read Language Count Dates ${error}`)
+      }
+    }
+  }
 }
 
 const readReferrerCount = async (_db, info) => {
@@ -56,15 +68,18 @@ const readReferrerCount = async (_db, info) => {
   } else {
     const { type } = info
     if (type === 'dates') {
-      const { endDate, startDate } = info;
+      const { endDate, startDate } = info
       const endDateFormatted = formatQueryDateTimeMySql(endDate)
       const startDateFormatted = formatQueryDateTimeMySql(startDate)
-
-      const [rows, fields] = await _db.execute(
-        'SELECT referrer, COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?) AND referrer IS NOT NULL GROUP BY referrer ORDER BY count DESC',
-        [startDateFormatted, endDateFormatted]
-      )
-      return rows && rows.length > 0 ? rows : -99
+      try {
+        const [rows, fields] = await _db.execute(
+          'SELECT referrer, COUNT(*) AS count FROM sessions WHERE (DATE(created_at) BETWEEN ? AND ?) AND referrer IS NOT NULL GROUP BY referrer ORDER BY count DESC',
+          [startDateFormatted, endDateFormatted]
+        )
+        return rows && rows.length > 0 ? rows : -99
+      } catch (error) {
+        throw new Error(`Session Services Read Referrer Count Dates ${error}`)
+      }
     }
   }
 }
@@ -166,6 +181,7 @@ const readVisitsCountTotal = async (_db, info) => {
 const readStatisticDateRange = async (_db, info) => {
   const { statistic } = info
   const validStatistics = [
+    'language',
     'referrer'
   ]
 
