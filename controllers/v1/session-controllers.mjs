@@ -190,10 +190,18 @@ async function readBounceRateTotal (request, reply) {
 }
 
 async function readLanguagerCount (request, reply) {
-  try {
-    const { _db } = this
-    const info = 'all'
+  const { _db } = this
 
+  let  info = null
+
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+    info = { type: 'dates', endDate, startDate }
+  }
+
+  try {
     const result = await getLanguageCount(_db, info)
     reply.send(result)
   } catch (error) {
@@ -202,18 +210,18 @@ async function readLanguagerCount (request, reply) {
 }
 
 async function readReferrerCount (request, reply) {
+  const { _db } = this
+
+  let info = null
+
+  if (Object.keys(request.query).length === 0) {
+    info = 'all'
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+    info = { type: 'dates', endDate, startDate }
+  }
+
   try {
-    const { _db } = this
-
-    let info = null
-
-    if (Object.keys(request.query).length === 0) {
-      info = 'all'
-    } else {
-      const { query: { enddate: endDate, startdate: startDate }, } = request
-      info = { type: 'dates', endDate, startDate }
-    }
-
     const result = await getReferrerCount(_db, info)
     reply.send(result)
   } catch (error) {
