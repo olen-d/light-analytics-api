@@ -14,6 +14,26 @@ const createPage = async (_db, info) => {
   }
 }
 
+const readPageStatisticDateRange = async (_db, info) => {
+  const { statistic } = info
+  const validStatistics = [
+    'route'
+  ]
+
+  if (validStatistics.findIndex(element => element === statistic) === -1) {
+    throw new Error('Invalid statistic provided for Read Page Statistic Date Range.')
+  }
+
+  try {
+    const [rows, fields] = await _db.execute(
+      `(SELECT id, created_at FROM pages WHERE ${statistic} IS NOT NULL ORDER BY created_at ASC LIMIT 1) UNION (SELECT id, created_at FROM pages WHERE ${statistic} IS NOT NULL ORDER BY created_at DESC LIMIT 1)`
+    )
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error(`Read Page Statistic Services Read ${info.statistic} Date Range ${error}`)
+  }
+}
+
 const readRoutesBySinglePageSessions = async (_db, info) => {
   if (info === 'all') {
     try {
@@ -435,6 +455,7 @@ const readRoutesByTotalUniqueViews = async (_db, info) => {
 
 export {
   createPage,
+  readPageStatisticDateRange,
   readRouteComponentsByTotalViews,
   readRouteComponentsByTotalTime,
   readRoutesBySinglePageSessions,

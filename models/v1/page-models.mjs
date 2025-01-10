@@ -1,7 +1,8 @@
-'use strict'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   createPage,
+  readPageStatisticDateRange,
   readRouteComponentsByTotalViews,
   readRouteComponentsByTotalTime,
   readRoutesBySinglePageSessions,
@@ -21,6 +22,16 @@ import {
   readViewsLastTime
 } from '../../services/v1/page-services.mjs'
 
+// Helper functions
+// Useful for items that come back from the database without and Id, e.g. anything resulting from a GROUP BY
+const addUniqueIds = data => {
+  const dataWithUniqueIds = data.map(element => {
+    return Object.assign({ id: uuidv4()}, element)
+  })
+  return dataWithUniqueIds
+}
+
+// Exports
 const getRoutesBySinglePageSessions = async (_db, info) => {
   try {
     const result = await readRoutesBySinglePageSessions(_db, info)
@@ -165,10 +176,24 @@ const getRoutesByTotalTimeViews = async (_db, info) => {
 const getRoutesByTotalViews= async (_db, info) => {
   try {
     const result = await readRoutesByTotalViews(_db, info)
-    const status = await result != -99 ? 'ok' : 'error'
-    const data = status === 'ok' ? result : null
+    const resultWithUniqueIds = addUniqueIds(result)
+    const data = resultWithUniqueIds
 
-    return { status, data }
+    if (info.all)
+      {
+        const infoDateRange = { all: true, statistic: 'route' }
+        const resultDateRange = await readPageStatisticDateRange(_db, infoDateRange)
+    
+        const routeDateRange = resultDateRange.map(element => {
+          return element['created_at']
+        })
+    
+        const [startDate, endDate] = routeDateRange
+
+        return { 'status': 'ok', data, meta: { startDate, endDate } }
+      } else {
+        return { 'status': 'ok', data }
+      }
   } catch (error) {
     throw new Error(`Page Models Get Routes by Total Views ${error}`)
   }
