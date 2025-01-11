@@ -411,7 +411,7 @@ const readRoutesByTotalViews = async (_db, info) => {
       )
       return rows && rows.length > 0 ? rows : -99
     }
-    const { endDate, levels, startDate } = info 
+    const { endDate, levels, startDate } = info
     if (levels && startDate && endDate) {
       const [rows, fields] = await _db.execute(
         'SELECT SUBSTRING_INDEX(route, \'/\', ?) AS route_consolidated, COUNT(*) AS total_views FROM (SELECT created_at, route FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route_consolidated ORDER BY total_views DESC',
@@ -439,7 +439,7 @@ const readRoutesByTotalViews = async (_db, info) => {
 }
 
 const readRoutesByTotalUniqueViews = async (_db, info) => {
-  if (info === 'all') {
+  if (info.all) {
     try {
       const [rows, fields] = await _db.execute(
         'SELECT route, COUNT(DISTINCT session_id) AS total_unique_views FROM pages GROUP BY route ORDER BY total_unique_views DESC'
@@ -449,7 +449,32 @@ const readRoutesByTotalUniqueViews = async (_db, info) => {
       throw new Error(`Page Services Read Routes by Unique Views ${error}`)
     }
   } else {
-    // Parse info and do stuff as approopriate
+    const { endDate, levels, startDate } = info 
+    try {
+      if (levels && startDate && endDate) {
+        const [rows, fields] = await _db.execute(
+          'SELECT SUBSTRING_INDEX(route, \'/\', ?) AS route_consolidated, COUNT(DISTINCT session_id) AS total_unique_views FROM (SELECT created_at, session_id, route FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route_consolidated ORDER BY total_unique_views DESC',
+          [levels, startDate, endDate]
+        )
+        return rows && rows.length > 0 ? rows : -99
+      }
+      if (startDate && endDate) {
+        const [rows, fields] = await _db.execute(
+          'SELECT route, COUNT(DISTINCT session_id) AS total_unique_views FROM (SELECT created_at, session_id, route FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY route ORDER BY total_unique_views DESC',
+          [startDate, endDate]
+        )
+        return rows && rows.length > 0 ? rows : -99
+      }
+      if (levels) {
+        const [rows, fields] = await _db.execute(
+          'SELECT SUBSTRING_INDEX(route, \'/\', ?) AS route_consolidated, COUNT(DISTINCT session_id) AS total_unique_views FROM pages GROUP BY route_consolidated ORDER BY total_unique_views DESC',
+          [levels]
+        )
+        return rows && rows.length > 0 ? rows : -99
+      }
+    } catch (error) {
+      throw new Error(`Page Services Read Routes by Unique Views Date Range ${error}`)
+    }
   }
 }
 

@@ -200,11 +200,30 @@ const getRoutesByTotalViews= async (_db, info) => {
 }
 
 const getRoutesByTotalUniqueViews = async (_db, info) => {
-  const result = await readRoutesByTotalUniqueViews(_db, info)
-  const status = await result != -99 ? 'ok' : 'error'
-  const data = status === 'ok' ? result : null
+  try {
+    const result = await readRoutesByTotalUniqueViews(_db, info)
+    const resultWithUniqueIds = addUniqueIds(result)
+    const data = resultWithUniqueIds
 
-  return { status, data}
+    if (info.all)
+      {
+        const infoDateRange = { all: true, statistic: 'route' }
+        const resultDateRange = await readPageStatisticDateRange(_db, infoDateRange)
+    
+        const routeDateRange = resultDateRange.map(element => {
+          return element['created_at']
+        })
+    
+        const [startDate, endDate] = routeDateRange
+
+        return { 'status': 'ok', data, meta: { startDate, endDate } }
+      } else {
+        return { 'status': 'ok', data }
+      }
+
+  } catch (error) {
+    throw new Error(`Page Models Get Routes by Total Unique Views ${error}`)
+  }
 }
 
 const getSessionsTotal= async (_db, info) => {
