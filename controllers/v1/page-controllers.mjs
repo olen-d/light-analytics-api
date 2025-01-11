@@ -644,10 +644,20 @@ async function readRoutesByTotalViews (request, reply) {
 }
 
 async function readRoutesByTotalUniqueViews (request, reply) {
-  try {
-    const { _db } = this
-    const info = 'all'
+  const { _db } = this
 
+  const info = {}
+  if (Object.keys(request.query).length === 0) {
+    info.all = true
+  } else {
+    const { query: { enddate: endDate, levels, startdate: startDate }, } = request
+
+    info.endDate = endDate || false
+    info.levels = levels || false
+    info.startDate = startDate || false
+  }
+
+  try {
     const result = await getRoutesByTotalUniqueViews(_db, info)
     reply.send(result)
   } catch (error) {
