@@ -141,7 +141,7 @@ async function readContentSummaryByRoute (request, reply) {
 
   try {
     const resultTotal = await getRoutesByTotalTimeViews(_db, info)
-    const resultUnique = await getRoutesByTotalUniqueViews(_db, infoModern)
+    const resultUnique = await getRoutesByTotalUniqueViews(_db, info)
     const resultEntry = await getViewsCountEntry(_db, info)
     const resultExit = await getViewsCountExit(_db, info)
     const resultSinglePage = await getRoutesBySinglePageSessions(_db, infoModern)
