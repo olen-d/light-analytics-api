@@ -1,5 +1,5 @@
-'use strict'
 import {
+  acquireRoutesByTimePerView,
   acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,
   acquireViewsCountTotalByHour,
@@ -28,6 +28,7 @@ export default async function (fastify, opts) {
   fastify.get('/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountTotalByMonth)
   fastify.get('/entry', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountEntry)
   fastify.get('/exit', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readViewsCountExit)
+  fastify.get('/routes/time/per-view', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireRoutesByTimePerView)
   fastify.get('/routes/total-time', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTime)
   fastify.get('/routes/total-time-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalTimeViews)
   fastify.get('/routes/total-views', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readRoutesByTotalViews)

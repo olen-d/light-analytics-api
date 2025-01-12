@@ -5,6 +5,7 @@ import {
   getRouteComponentsByTotalViews,
   getRouteComponentsByTotalTime,
   getRoutesBySinglePageSessions,
+  getRoutesByTimePerView,
   getRoutesByTotalTime,
   getRoutesByTotalTimeViews,
   getRoutesByTotalUniqueViews,
@@ -78,6 +79,28 @@ async function acquireViewsCountTotalByHour (request, reply) {
     reply.send(result)
   } catch (error) {
     throw new Error(`Page Controllers Acquire Views Count Total By Hour ${error}`)
+  }
+}
+
+async function acquireRoutesByTimePerView (request, reply) {
+  const { _db } = this
+
+  const info = {}
+  if (Object.keys(request.query).length === 0) {
+    info.all = true
+  } else {
+    const { query: { enddate: endDate, levels, startdate: startDate }, } = request
+
+    info.endDate = endDate || false
+    info.levels = levels || false
+    info.startDate = startDate || false
+  }
+
+  try {
+    const result = await getRoutesByTimePerView(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Read Routes by Time per View ${error}`)
   }
 }
 
@@ -666,6 +689,7 @@ async function readRoutesByTotalUniqueViews (request, reply) {
 }
 
 export {
+  acquireRoutesByTimePerView,
   acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,
   acquireViewsCountTotalByHour,
