@@ -205,14 +205,6 @@ async function readContentSummaryByRoute (request, reply) {
   } catch(error) {
     throw new Error(`Page Controllers Read Content Summary By Route ${error}`)
   }
-
-  // Get Total Time and Page Views
-  // Get Unique Page Views
-  // Get Entries
-  // Get Exits
-  // Get Bounce Rate
-  // Calculate Average Time on Page and Add it to the Array
-  // Summary by Route { route, page_views, unique_page_views, average_time_on_page, entrances, exits, bounce_rate }
 }
 
 async function readTimeOnPageAverage (request, reply) {
