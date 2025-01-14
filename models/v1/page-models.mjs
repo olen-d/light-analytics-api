@@ -33,6 +33,42 @@ const addUniqueIds = data => {
 }
 
 // Exports
+const getRoutesByBounceRate = async (_db, info) => {
+  try {
+    const resultSinglePageSessions = await readRoutesBySinglePageSessions(_db, info)
+    const resultTotalViews = await readRoutesByTotalViews(_db, info)
+
+    const routesByBounceRate = resultTotalViews.map(element => {
+      const { route, 'total_views': totalViews } = element
+      const indexSPS = resultSinglePageSessions.findIndex(item => item.route === route)
+      const sps = indexSPS === -1 ? 0 : resultSinglePageSessions[indexSPS]['single_page_sessions']
+      const bounceRate = sps / totalViews
+      return { route, bounceRate }
+    })
+
+    const routesByBounceRateWithIds = addUniqueIds(routesByBounceRate)
+    const data = routesByBounceRateWithIds
+
+    if (info.all)
+    {
+      const infoDateRange = { all: true, statistic: 'route' }
+      const resultDateRange = await readPageStatisticDateRange(_db, infoDateRange)
+  
+      const routeDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = routeDateRange
+
+      return { 'status': 'ok', data, meta: { startDate, endDate } }
+    } else {
+      return { 'status': 'ok', data }
+    }
+  } catch (error) {
+    throw new Error(`Page Models Get Routes by Bounce Rate ${error}`)
+  }
+}
+
 const getRoutesBySinglePageSessions = async (_db, info) => {
   try {
     const result = await readRoutesBySinglePageSessions(_db, info)
@@ -336,6 +372,7 @@ export {
   getTimeOnPageTotal,
   getRouteComponentsByTotalViews,
   getRouteComponentsByTotalTime,
+  getRoutesByBounceRate,
   getRoutesBySinglePageSessions,
   getRoutesByTimePerView,
   getRoutesByTotalTime,

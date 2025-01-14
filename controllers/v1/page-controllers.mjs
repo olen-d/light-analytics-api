@@ -18,7 +18,8 @@ import {
   getViewsCountTotalByHour,
   getViewsCountTotalByMonth,
   getViewsCountTimeTotal,
-  newPage
+  newPage,
+  getRoutesByBounceRate
 } from '../../models/v1/page-models.mjs'
 
 import { formatUTCDate, getPreviousPeriodDates } from '../../services/v1/date-services.mjs'
@@ -60,6 +61,27 @@ const matchExcludedURLQueryParameters = (parameters, queryParameter) => {
     return test
   })
   return matches
+}
+
+async function acquireRoutesByBounceRate (request, reply) {
+  const { _db } = this
+
+  const info = {}
+  if (Object.keys(request.query).length === 0) {
+    info.all = true
+  } else {
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+
+    info.endDate = endDate || false
+    info.startDate = startDate || false
+  }
+
+  try {
+    const result = await getRoutesByBounceRate(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Acquire Routes by Bounce Rate ${error}`)
+  }
 }
 
 async function acquireViewsCountTotalByHour (request, reply) {
@@ -141,11 +163,14 @@ async function addPage (request, reply) {
 async function readRoutesBySinglePageSessions (request, reply) {
   const { _db } = this
 
-  let info = null
+  const info = {}
   if (Object.keys(request.query).length === 0) {
-    info = 'all'
+    info.all = true
   } else {
-    // Deal with custom info
+    const { query: { enddate: endDate, startdate: startDate }, } = request
+
+    info.endDate = endDate || false
+    info.startDate = startDate || false
   }
 
   try {
@@ -167,7 +192,7 @@ async function readContentSummaryByRoute (request, reply) {
     const resultUnique = await getRoutesByTotalUniqueViews(_db, info)
     const resultEntry = await getViewsCountEntry(_db, info)
     const resultExit = await getViewsCountExit(_db, info)
-    const resultSinglePage = await getRoutesBySinglePageSessions(_db, infoModern)
+    const resultSinglePage = await getRoutesBySinglePageSessions(_db, info)
 
     const { data: uniqueViewsByRoute } = resultUnique
     const { data: entryPagesCount } = resultEntry
@@ -681,6 +706,7 @@ async function readRoutesByTotalUniqueViews (request, reply) {
 }
 
 export {
+  acquireRoutesByBounceRate,
   acquireRoutesByTimePerView,
   acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,

@@ -35,17 +35,26 @@ const readPageStatisticDateRange = async (_db, info) => {
 }
 
 const readRoutesBySinglePageSessions = async (_db, info) => {
-  if (info === 'all') {
-    try {
+  try {
+    if (info.all) {
       const [rows, fields] = await _db.execute(
         'SELECT route, COUNT(*) AS single_page_sessions FROM pages INNER JOIN (SELECT session_id FROM pages GROUP BY session_id HAVING COUNT(*) = 1) AS ONLY_ONCE ON pages.session_id = ONLY_ONCE.session_id GROUP BY route ORDER BY single_page_sessions DESC, route ASC'
       )
       return rows && rows.length > 0 ? rows: -99
-    } catch (error) {
-      throw new Error(`Page Services Read Bounce Rate by Route ${error}`)
-    }
-  }
+    } else {
+      const { endDate, startDate } = info
 
+      if (endDate && startDate) {
+      const [rows, fields] = await _db.execute(
+        'SELECT route, COUNT(*) AS single_page_sessions FROM pages INNER JOIN (SELECT session_id FROM (SELECT created_at, session_id, route FROM pages WHERE (DATE(created_at) BETWEEN ? AND ?)) as t1 GROUP BY session_id HAVING COUNT(*) = 1) AS ONLY_ONCE ON pages.session_id = ONLY_ONCE.session_id GROUP BY route ORDER BY single_page_sessions DESC, route ASC',
+        [startDate, endDate]
+      )
+      return rows && rows.length > 0 ? rows: -99
+      }
+    }
+  } catch (error) {
+    throw new Error(`Page Services Read Bounce Rate by Route ${error}`)
+  }
 }
 
 const readSessionsTotal = async (_db, info) => {
