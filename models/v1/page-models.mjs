@@ -46,7 +46,9 @@ const getRoutesByBounceRate = async (_db, info) => {
       return { route, bounceRate }
     })
 
-    const routesByBounceRateWithIds = addUniqueIds(routesByBounceRate)
+    const routesByBounceRateSorted = routesByBounceRate.toSorted((a, b) => a.bounceRate === b.bounceRate ? b.route.localeCompare(a.route) : b.bounceRate - a.bounceRate)
+
+    const routesByBounceRateWithIds = addUniqueIds(routesByBounceRateSorted)
     const data = routesByBounceRateWithIds
 
     if (info.all)
