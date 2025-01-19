@@ -182,7 +182,8 @@ const readStatisticDateRange = async (_db, info) => {
   const { statistic } = info
   const validStatistics = [
     'language',
-    'referrer'
+    'referrer',
+    'session_id'
   ]
 
   if (validStatistics.findIndex(element => element === statistic) === -1) {
