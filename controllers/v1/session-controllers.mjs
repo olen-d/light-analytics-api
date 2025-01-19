@@ -350,11 +350,18 @@ async function readVisitsCountTotal (request, reply) {
     if (Object.keys(request.query).length === 0) {
       const info = 'all'
 
-      const endDate = await readVisitsLastTime(_db, info)
-      const startDate = await readVisitsFirstTime(_db, info)
       const result = await getVisitsCountTotal(_db, info)
 
       const { status, totalVisits } = result
+
+      const infoDateRange = { all: true, statistic: 'session_id' }
+      const resultDateRange = await readStatisticDateRange(_db, infoDateRange)
+  
+      const referrerDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = referrerDateRange
 
       const data =  {
         totalVisits,
