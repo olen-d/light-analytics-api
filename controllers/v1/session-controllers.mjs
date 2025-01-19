@@ -15,7 +15,7 @@ import {
 } from '../../models/v1/session-models.mjs'
 
 import { formatUTCDate, getPreviousPeriodDates } from '../../services/v1/date-services.mjs'
-import { readVisitsFirstTime, readVisitsLastTime } from '../../services/v1/session-services.mjs'
+import { readVisitsFirstTime, readVisitsLastTime, readStatisticDateRange } from '../../services/v1/session-services.mjs' // Depricated: readVisitsFirstTime, readVisitsLastTime, use readStatisticDateRange, built in as acquireStatisticDateRange
 
 // Helper Functions
 const filterQueryString = (getSetting, route) => {
@@ -127,15 +127,22 @@ async function readBounceRateTotal (request, reply) {
       const info = 'all'
 
       const resultSinglePage = await getSinglePageSessionsCountTotal(_db, info)
-      const endDate = await readVisitsLastTime(_db, info)
-      const startDate = await readVisitsFirstTime(_db, info)
       const resultVisits = await getVisitsCountTotal(_db, info)
   
       const { data: { totalSinglePageSessions }, } = resultSinglePage
       const { totalVisits } = resultVisits
   
       const bounceRate = totalSinglePageSessions / totalVisits
+
+      const infoDateRange = { all: true, statistic: 'session_id' }
+      const resultDateRange = await readStatisticDateRange(_db, infoDateRange)
   
+      const referrerDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = referrerDateRange
+
       reply.send({
         'status': 'ok',
         'data': {
