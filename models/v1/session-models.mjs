@@ -13,8 +13,6 @@ import {
   readVisitsCountTotalByMonth,
   readVisitsCountUnique,
   readVisitsCountUniqueByMonth,
-  readVisitsFirstTime,
-  readVisitsLastTime
 } from '../../services/v1/session-services.mjs'
 
 // Helper functions

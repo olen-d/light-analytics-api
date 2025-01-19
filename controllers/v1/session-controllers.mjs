@@ -15,7 +15,7 @@ import {
 } from '../../models/v1/session-models.mjs'
 
 import { formatUTCDate, getPreviousPeriodDates } from '../../services/v1/date-services.mjs'
-import { readVisitsFirstTime, readVisitsLastTime, readStatisticDateRange } from '../../services/v1/session-services.mjs' // Depricated: readVisitsFirstTime, readVisitsLastTime, use readStatisticDateRange, built in as acquireStatisticDateRange
+import { readStatisticDateRange } from '../../services/v1/session-services.mjs'
 
 // Helper Functions
 const filterQueryString = (getSetting, route) => {
@@ -469,11 +469,18 @@ async function readVisitsCountUnique (request, reply) {
 
     if (Object.keys(request.query).length === 0) {
       const info = 'all'
-      const endDate = await readVisitsLastTime(_db, info)
-      const startDate = await readVisitsFirstTime(_db, info)
       const result = await getVisitsCountUnique(_db, info)
 
       const { status, uniqueVisits } = result
+
+      const infoDateRange = { all: true, statistic: 'session_id' }
+      const resultDateRange = await readStatisticDateRange(_db, infoDateRange)
+  
+      const referrerDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = referrerDateRange
 
       const data =  {
         uniqueVisits,
