@@ -23,7 +23,7 @@ import {
 } from '../../models/v1/page-models.mjs'
 
 import { formatUTCDate, getPreviousPeriodDates } from '../../services/v1/date-services.mjs'
-import { readViewsFirstTime, readViewsLastTime } from '../../services/v1/page-services.mjs'
+import { readPageStatisticDateRange } from '../../services/v1/page-services.mjs'
 
 // Helper Functions
 const filterQueryString = (getSetting, route) => {
@@ -238,8 +238,6 @@ async function readTimeOnPageAverage (request, reply) {
   try {
     if (Object.keys(request.query).length === 0) {
       const info = 'all'
-      const endDate = await readViewsLastTime(_db, info)
-      const startDate = await readViewsFirstTime(_db, info)
       const resultTimeTotal = await getTimeOnPageTotal(_db, info)
       const resultSessionsTotal = await getSessionsTotal(_db, info)
 
@@ -247,6 +245,15 @@ async function readTimeOnPageAverage (request, reply) {
       const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
 
       const timeOnPageAverage = totalTime / totalSessions
+
+      const infoDateRange = { all: true, statistic: 'session_id' }
+      const resultDateRange = await readPageStatisticDateRange(_db, infoDateRange)
+  
+      const routeDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = routeDateRange
 
       const data = {
         timeOnPageAverage,
@@ -308,14 +315,20 @@ async function readTimePerPageview (request, reply) {
   try {
     if (Object.keys(request.query).length === 0) {
       const info = 'all'
-      const endDate = await readViewsLastTime(_db, info)
-      const startDate = await readViewsFirstTime(_db, info)
       const result = await getViewsCountTimeTotal(_db, info)
 
       const { status, data: { totalTime, totalViews }, } = result
   
       const timePerPageview = totalTime / totalViews
 
+      const infoDateRange = { all: true, statistic: 'session_id' }
+      const resultDateRange = await readPageStatisticDateRange(_db, infoDateRange)
+  
+      const routeDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = routeDateRange
       const data = {
         timePerPageview,
         startDate,
@@ -430,11 +443,18 @@ async function readViewsCountTimeTotal (request, reply) {
 
     if (Object.keys(request.query).length === 0) {
       const info = 'all'
-      const endDate = await readViewsLastTime(_db, info)
-      const startDate = await readViewsFirstTime(_db, info)
       const result = await getViewsCountTimeTotal(_db, info)
 
       const { status, data: { totalTime, totalViews }, } = result
+
+      const infoDateRange = { all: true, statistic: 'session_id' }
+      const resultDateRange = await readPageStatisticDateRange(_db, infoDateRange)
+  
+      const routeDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = routeDateRange
 
       const data = {
         totalTime,
@@ -505,8 +525,6 @@ async function readViewsPerVisit (request, reply) {
   try {
     if (Object.keys(request.query).length === 0) {
       const info = 'all'
-      const endDate = await readViewsLastTime(_db, info)
-      const startDate = await readViewsFirstTime(_db, info)
       const resultSessionsTotal = await getSessionsTotal(_db, info)
       const resultViews = await getViewsCountTimeTotal(_db, info)
   
@@ -514,6 +532,15 @@ async function readViewsPerVisit (request, reply) {
       const { data: [{ 'total_sessions': totalSessions }] } = resultSessionsTotal
   
       const viewsPerVisit = totalViews / totalSessions
+
+      const infoDateRange = { all: true, statistic: 'session_id' }
+      const resultDateRange = await readPageStatisticDateRange(_db, infoDateRange)
+  
+      const routeDateRange = resultDateRange.map(element => {
+        return element['created_at']
+      })
+  
+      const [startDate, endDate] = routeDateRange
 
       const data = {
         viewsPerVisit,

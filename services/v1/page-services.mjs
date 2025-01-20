@@ -17,7 +17,8 @@ const createPage = async (_db, info) => {
 const readPageStatisticDateRange = async (_db, info) => {
   const { statistic } = info
   const validStatistics = [
-    'route'
+    'route',
+    'session_id'
   ]
 
   if (validStatistics.findIndex(element => element === statistic) === -1) {
@@ -251,40 +252,6 @@ const readViewsCountTotalByMonth = async (_db, info) => {
     }
   } else {
     // Deal with custom info
-  }
-}
-
-const readViewsFirstTime = async (_db, info) => {
-  try {
-    const [rows, fields] = await _db.execute(
-      'SELECT created_at FROM pages ORDER BY created_at ASC LIMIT 1'
-    )
-
-    if (rows && rows.length > 0) {
-      const[{ 'created_at': startDate }] = rows
-      return startDate
-    } else {
-      return -99
-    }
-  } catch (error) {
-    throw new Error(`Page Services Read Views First Time ${error}`)
-  }
-}
-
-const readViewsLastTime = async (_db, info) => {
-  try {
-    const [rows, fields] = await _db.execute(
-      'SELECT created_at FROM pages ORDER BY created_at DESC LIMIT 1'
-    )
-
-    if (rows && rows.length > 0) {
-      const[{ 'created_at': endDate }] = rows
-      return endDate
-    } else {
-      return -99
-    }
-  } catch (error) {
-    throw new Error(`Page Services Read Views Last Time ${error}`)
   }
 }
 
@@ -557,7 +524,5 @@ export {
   readViewsCountTimeByDay,
   readViewsCountTimeTotal,
   readViewsCountTotalByHour,
-  readViewsCountTotalByMonth,
-  readViewsFirstTime,
-  readViewsLastTime
+  readViewsCountTotalByMonth
 }
