@@ -19,8 +19,6 @@ import {
   readViewsCountTotalByHour,
   readViewsCountTotalByMonth,
   readViewsCountTimeTotal,
-  readViewsFirstTime,
-  readViewsLastTime
 } from '../../services/v1/page-services.mjs'
 
 // Helper functions
