@@ -1,4 +1,4 @@
-import { formatQueryDateTimeMySql } from './date-services.mjs'
+import { formatQueryDateTimeMySql, formatUTCDate } from './date-services.mjs'
 
 const createPage = async (_db, info) => {
   try {
@@ -290,25 +290,39 @@ const readRouteComponentsByTotalTime = async (_db, info) => {
   const componentDelimiter = `/${component}/`
   const componentExpression = `${componentDelimiter}%`
 
+  const validSortOrders = [
+    'ASC',
+    'DESC'
+  ]
+
+  if (info.sortOrder && validSortOrders.findIndex(element => element === info.sortOrder) === -1) {
+    throw new Error('Invalid sort order provided for Read Route Components By Total Time.')
+  }
+
+  const nowObj = new Date()
+  const defaultEndDate = formatUTCDate(nowObj, 'mySQLDate')
+
+  const { endDate = defaultEndDate, limit, sortOrder, startDate } = info
+  const limitAsNumber = Number(limit)
+  const limitClause = limitAsNumber ? ` LIMIT ${limitAsNumber}` : ''
+  const sortByClause = sortOrder ? ` ${sortOrder}` : ' DESC'
+
   try {
-    if (info.all) {
+    if (startDate && endDate) {
+
       const [rows, fields] = await _db.execute(
-        'SELECT SUBSTRING_INDEX(route, ?, -1) as component_summary, SUM(time_on_page) AS total_time FROM (SELECT route, time_on_page FROM pages WHERE route LIKE ?) AS t1 GROUP BY component_summary ORDER BY total_time DESC',
-        [componentDelimiter, componentExpression]
+        `SELECT SUBSTRING_INDEX(route, ?, -1) as component_summary, SUM(time_on_page) AS total_time FROM (SELECT created_at, route, time_on_page FROM pages WHERE route LIKE ? AND (DATE(created_at) BETWEEN ? AND ?)) AS t1 GROUP BY component_summary ORDER BY total_time${sortByClause}${limitClause}`,
+        [componentDelimiter, componentExpression, startDate, endDate]
       )
 
       return rows && rows.length > 0 ? rows : -99
     } else {
-      const { type } = info
-      if (type === 'dates') {
-        const { endDate, startDate} = info
-        const [rows, fields] = await _db.execute(
-          'SELECT SUBSTRING_INDEX(route, ?, -1) as component_summary, SUM(time_on_page) AS total_time FROM (SELECT created_at, route, time_on_page FROM pages WHERE route LIKE ? AND (DATE(created_at) BETWEEN ? AND ?)) AS t1 GROUP BY component_summary ORDER BY total_time DESC',
-          [componentDelimiter, componentExpression, startDate, endDate]
-        )
-  
-        return rows && rows.length > 0 ? rows : -99
-      }
+      const [rows, fields] = await _db.execute(
+        `SELECT SUBSTRING_INDEX(route, ?, -1) as component_summary, SUM(time_on_page) AS total_time FROM (SELECT route, time_on_page FROM pages WHERE route LIKE ?) AS t1 GROUP BY component_summary ORDER BY total_time${sortByClause}${limitClause}`,
+        [componentDelimiter, componentExpression]
+      )
+
+      return rows && rows.length > 0 ? rows : -99
     }
   } catch (error) {
     throw new Error(`Page Services Read Route Components by Total Time ${error}`)
