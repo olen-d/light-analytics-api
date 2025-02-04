@@ -208,7 +208,9 @@ const getRouteComponentsByTotalTime = async (_db, info) => {
       return element
     })
 
-    return { status, data: dataTimeToNumber }
+    const resultWithUniqueIds = addUniqueIds(dataTimeToNumber)
+
+    return { status, data: resultWithUniqueIds }
   } catch (error) {
     throw new Error(`Page Models Get Route Components by Total Time ${error}`)
   }

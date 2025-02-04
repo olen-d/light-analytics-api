@@ -629,28 +629,26 @@ async function acquireRouteComponentsByTotalViews (request, reply) {
 async function acquireRouteComponentsByTotalTime (request, reply) {
   const { _db } = this
 
-  const info = {}
-  if(Object.keys(request.query).length === 1) {
-    const { query: { componentName }, } = request
+  if(Object.keys(request.query).length > 0 ) {
+    const { query: { component, enddate: endDate, limit, sortby: sortBy, sortorder: sortOrder, startdate: startDate }, } = request
 
-    info.all = true
-    info.component = componentName // TODO: Sanitize component nane
-  } else if(Object.keys(request.query).length > 1) {
-    const { query: { componentName: component, enddate: endDate, startdate: startDate }, } = request
+    const info = {
+      component,
+      endDate,
+      limit,
+      sortOrder,
+      sortBy,
+      startDate,
+    }
 
-    info.type= 'dates'
-    info.component = component
-    info.endDate = endDate
-    info.startDate = startDate
+    try {
+      const result = await getRouteComponentsByTotalTime(_db, info)
+      reply.send(result)
+    } catch (error) {
+      throw new Error(`Page Controllers Aquire Route Components by Total Time ${error}`)
+    }
   } else {
     // TOOD Return missing parameter error
-  }
-
-  try {
-    const result = await getRouteComponentsByTotalTime(_db, info)
-    reply.send(result)
-  } catch (error) {
-    throw new Error(`Page Controllers Aquire Route Components by Total Time ${error}`)
   }
 }
 
