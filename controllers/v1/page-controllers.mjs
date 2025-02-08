@@ -10,6 +10,7 @@ import {
   getRoutesByTotalTimeViews,
   getRoutesByTotalUniqueViews,
   getRoutesByTotalViews,
+  getRouteSummary,
   getSessionsTotal,
   getTimeOnPageTotal,
   getViewsCountEntry,
@@ -81,6 +82,20 @@ async function acquireRoutesByBounceRate (request, reply) {
     reply.send(result)
   } catch (error) {
     throw new Error(`Page Controllers Acquire Routes by Bounce Rate ${error}`)
+  }
+}
+
+async function acquireRouteSummary (request, reply) {
+  const { _db } = this
+  const { query: { route }, } = request
+
+  const info = { route }
+
+  try {
+    const result = await getRouteSummary(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Page Controllers Acquire Route Summary ${error}`)
   }
 }
 
@@ -735,6 +750,7 @@ export {
   acquireRoutesByTimePerView,
   acquireRouteComponentsByTotalTime,
   acquireRouteComponentsByTotalViews,
+  acquireRouteSummary,
   acquireViewsCountTotalByHour,
   addPage,
   readContentSummaryByRoute,

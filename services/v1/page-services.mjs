@@ -108,6 +108,20 @@ const readTimeOnPageTotal = async (_db, info) => {
   }
 }
 
+const readRouteByViewsCountEntry = async (_db, info)=> {
+  const { route } = info
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT entry_page, entry_page_count FROM (SELECT entry_page, COUNT(DISTINCT session_id) AS entry_page_count FROM (SELECT session_id, page_start_time, route, FIRST_VALUE(route) OVER (PARTITION BY session_id ORDER BY page_start_time ASC) as entry_page FROM pages) AS sb GROUP BY entry_page ORDER BY entry_page_count DESC) as mt WHERE entry_page = ?',
+      [route]
+    )
+
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error(`Page Services Read Route By Views Count Entry ${error}`)
+  }
+}
+
 const readViewsCountEntry = async (_db, info) => {
   try {
     if (info.all) {
@@ -129,6 +143,20 @@ const readViewsCountEntry = async (_db, info) => {
     }
   } catch (error) {
     throw new Error(`Page Services Read Views Count Entry ${error}`)
+  }
+}
+
+const readRouteByViewsCountExit = async (_db, info)=> {
+  const { route } = info
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT exit_page, exit_page_count FROM (SELECT exit_page, COUNT(DISTINCT session_id) AS exit_page_count FROM (SELECT session_id, page_start_time, route, FIRST_VALUE(route) OVER (PARTITION BY session_id ORDER BY page_start_time DESC) as exit_page FROM pages) AS sb GROUP BY exit_page ORDER BY exit_page_count DESC) as mt WHERE exit_page = ?',
+      [route]
+    )
+
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error(`Page Services Read Route By Views Count Exit ${error}`)
   }
 }
 
@@ -381,6 +409,21 @@ const readRoutesByTimePerView = async (_db, info) => {
   }
 }
 
+const readRouteByTotalTime = async (_db, info) => {
+  const { route } = info
+  const routeDecoded = decodeURIComponent(route)
+
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT route, SUM(time_on_page) AS total_time FROM pages  WHERE route = ? GROUP BY route',
+      [routeDecoded]
+    )
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error (`Page Services Read Route By Total Time ${error}`)
+  }
+}
+
 const readRoutesByTotalTime = async (_db, info) => {
   try {
     const [rows, fields] = await _db.execute(
@@ -442,6 +485,21 @@ const readRoutesByTotalTimeViews = async (_db, info) => {
     }
   } catch (error) {
     throw new Error(`Page Services Read Routes by Total Time Views ${error}`)
+  }
+}
+
+const readRouteByTotalViews = async (_db, info) => {
+  const { route } = info
+  const routeDecoded = decodeURIComponent(route)
+
+  try {
+    const [rows, fields] = await _db.execute(
+      'SELECT route, COUNT(*) AS total_views FROM pages WHERE route = ? GROUP BY route',
+      [routeDecoded]
+    )
+    return rows && rows.length > 0 ? rows : -99
+  } catch (error) {
+    throw new Error (`Page Services Read Route By Total Views ${error}`)
   }
 }
 
@@ -525,6 +583,10 @@ export {
   readPageStatisticDateRange,
   readRouteComponentsByTotalViews,
   readRouteComponentsByTotalTime,
+  readRouteByTotalTime,
+  readRouteByTotalViews,
+  readRouteByViewsCountEntry,
+  readRouteByViewsCountExit,
   readRoutesBySinglePageSessions,
   readRoutesByTimePerView,
   readRoutesByTotalTime,
