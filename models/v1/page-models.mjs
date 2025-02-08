@@ -3,6 +3,10 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   createPage,
   readPageStatisticDateRange,
+  readRouteByTotalTime,
+  readRouteByTotalViews,
+  readRouteByViewsCountEntry,
+  readRouteByViewsCountExit,
   readRouteComponentsByTotalViews,
   readRouteComponentsByTotalTime,
   readRoutesBySinglePageSessions,
@@ -280,7 +284,36 @@ const getRoutesByTotalTimeViews = async (_db, info) => {
   }
 }
 
-const getRoutesByTotalViews= async (_db, info) => {
+const getRouteSummary = async (_db, info) => {
+  try {
+    const resultTime = await readRouteByTotalTime(_db, info)
+    const resultViews = await readRouteByTotalViews(_db, info)
+    const resultEntries = await readRouteByViewsCountEntry(_db, info)
+    const resultExits = await (readRouteByViewsCountExit(_db, info))
+
+    const [{ route, 'total_time': totalTime }] = resultTime
+    const [{ 'total_views': totalViews }] = resultViews
+    const [{ 'entry_page_count': entryPageCount }] = resultEntries
+    const [{ 'exit_page_count': exitPageCount }] = resultExits
+
+    const averageTime = totalTime / totalViews
+
+    const data = {
+      route,
+      totalTime,
+      totalViews,
+      averageTime,
+      entryPageCount,
+      exitPageCount
+    }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Page Models Get Route by Total Views ${error}`)
+  }
+}
+
+const getRoutesByTotalViews = async (_db, info) => {
   try {
     const result = await readRoutesByTotalViews(_db, info)
     const resultWithUniqueIds = addUniqueIds(result)
@@ -381,6 +414,7 @@ export {
   getRoutesByTotalTimeViews,
   getRoutesByTotalUniqueViews,
   getRoutesByTotalViews,
+  getRouteSummary,
   getViewsCountEntry,
   getViewsCountExit,
   getViewsCountTimeByDay,
