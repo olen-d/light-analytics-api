@@ -291,10 +291,10 @@ const getRouteSummary = async (_db, info) => {
     const resultEntries = await readRouteByViewsCountEntry(_db, info)
     const resultExits = await (readRouteByViewsCountExit(_db, info))
 
-    const [{ route, 'total_time': totalTime }] = resultTime
-    const [{ 'total_views': totalViews }] = resultViews
-    const [{ 'entry_page_count': entryPageCount }] = resultEntries
-    const [{ 'exit_page_count': exitPageCount }] = resultExits
+    const [{ route, 'total_time': totalTime }] = resultTime === -99 ? [{ 'total_time': 0 }] : resultTime
+    const [{ 'total_views': totalViews }] = resultViews === -99 ? [{ 'total_views': 0 }] : resultViews
+    const [{ 'entry_page_count': entryPageCount }] = resultEntries === -99 ? [{ 'entry_page_count': 0 }] : resultEntries
+    const [{ 'exit_page_count': exitPageCount }] = resultExits === -99 ? [{ 'exit_page_count': 0 }] : resultExits
 
     const averageTime = totalTime / totalViews
 
@@ -309,7 +309,7 @@ const getRouteSummary = async (_db, info) => {
 
     return { 'status': 'ok', data }
   } catch (error) {
-    throw new Error(`Page Models Get Route by Total Views ${error}`)
+    throw new Error(`Page Models Get Route Summary ${error}`)
   }
 }
 
