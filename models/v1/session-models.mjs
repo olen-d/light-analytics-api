@@ -9,6 +9,7 @@ import {
   readStatisticDateRange,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
+  readVisitsCountTotalByDayOfWeek,
   readVisitsCountTotalByHour,
   readVisitsCountTotalByMonth,
   readVisitsCountUnique,
@@ -133,6 +134,18 @@ const getVisitsCountTotalByDay = async (_db, info) => {
   }
 }
 
+const getVisitsCountTotalByDayOfWeek = async (_db, info) => {
+  try {
+    const result = await readVisitsCountTotalByDayOfWeek(_db, info)
+
+    const data = { 'totalVisitsByDayOfWeek': result }
+
+    return { 'status': 'ok', data }
+  } catch (error) {
+    throw new Error(`Session Models Get Visits Count Total By Day Of Week ${error}`)
+  }
+}
+
 const getVisitsCountTotalByHour = async (_db, info) => {
   try {
     const result = await readVisitsCountTotalByHour(_db, info)
@@ -198,6 +211,7 @@ export {
   getStatisticDateRange,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
+  getVisitsCountTotalByDayOfWeek,
   getVisitsCountTotalByHour,
   getVisitsCountTotalByMonth,
   getVisitsCountUnique,
