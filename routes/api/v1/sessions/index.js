@@ -11,6 +11,7 @@ import {
   readSummaryByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
+  acquireVisitsCountTotalByDayOfWeek,
   readVisitsCountTotalByMonth,
   readVisitsCountUniqueByMonth,
   readVisitsCountUnique
@@ -20,6 +21,7 @@ export default async function (fastify, opts) {
   fastify.get('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotal)
   fastify.get('/bounce-rate', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readBounceRateTotal)
   fastify.get('/by-day', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotalByDay)
+  fastify.get('/by-day-of-week', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireVisitsCountTotalByDayOfWeek)
   fastify.get('/by-hour', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireVisitsCountTotalByHour)
   fastify.get('/by-month', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotalByMonth)
   fastify.get('/date-range', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireStatisticDateRange)

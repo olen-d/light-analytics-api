@@ -7,6 +7,7 @@ import {
   getStatisticDateRange,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
+  getVisitsCountTotalByDayOfWeek,
   getVisitsCountTotalByHour,
   getVisitsCountTotalByMonth,
   getVisitsCountUnique,
@@ -425,6 +426,25 @@ async function readVisitsCountTotalByDay (request, reply) {
   }
 }
 
+async function acquireVisitsCountTotalByDayOfWeek (request, reply) {
+  const { _db } = this
+
+  let info = null
+
+  try {
+    if (Object.keys(request.query).length === 0) {
+      info = 'all'
+    } else {
+      const { query: { enddate: endDate, startdate: startDate }, } = request
+      info = { type: 'dates', endDate, startDate }
+    }
+    const result = await getVisitsCountTotalByDayOfWeek(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Read Visits Count Total By Day Of Week ${error}`)
+  }
+}
+
 async function acquireVisitsCountTotalByHour (request, reply) {
   try {
     const { _db } = this
@@ -558,6 +578,7 @@ export {
   readSummaryByMonth,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
+  acquireVisitsCountTotalByDayOfWeek,
   readVisitsCountTotalByMonth,
   readVisitsCountUniqueByMonth,
   readVisitsCountUnique

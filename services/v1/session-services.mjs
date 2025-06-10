@@ -295,6 +295,21 @@ const readVisitsCountTotalByMonth = async(_db, info) => {
   }
 }
 
+const readVisitsCountTotalByDayOfWeek = async (_db, info) => {
+  if (info === 'all') {
+    try {
+      const [rows, fields] = await _db.execute(
+        'SELECT WEEKDAY(created_at) AS weekday, COUNT(*) AS count FROM sessions GROUP BY weekday ORDER BY weekday'
+      )
+      return rows && rows.length > 0 ? rows : -99
+    } catch (error) {
+      throw new Error(`Session Services Read Visits Count Total By Weekday (All) ${error}`)
+    }
+  } else {
+    // Date Ranges
+  }
+}
+
 const readVisitsCountUnique = async (_db, info) => {
   try {
     if (info === 'all') {
@@ -377,6 +392,7 @@ export {
   readStatisticDateRange,
   readVisitsCountTotal,
   readVisitsCountTotalByDay,
+  readVisitsCountTotalByDayOfWeek,
   readVisitsCountTotalByHour,
   readVisitsCountTotalByMonth,
   readVisitsCountUnique,
