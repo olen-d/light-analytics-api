@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid'
-
 import {
   createSession,
   readLanguageCount,
@@ -16,14 +14,7 @@ import {
   readVisitsCountUniqueByMonth,
 } from '../../services/v1/session-services.mjs'
 
-// Helper functions
-// Useful for items that come back from the database without and Id, e.g. anything resulting from a GROUP BY
-const addUniqueIds = data => {
-  const dataWithUniqueIds = data.map(element => {
-    return Object.assign({ id: uuidv4()}, element)
-  })
-  return dataWithUniqueIds
-}
+import { addUniqueIds } from '../../services/v1/aggregation-services.mjs'
 
 // Exports
 const getLanguageCount = async (_db, info) => {
@@ -137,10 +128,24 @@ const getVisitsCountTotalByDay = async (_db, info) => {
 const getVisitsCountTotalByDayOfWeek = async (_db, info) => {
   try {
     const result = await readVisitsCountTotalByDayOfWeek(_db, info)
+    const resultWithUniqueIds = addUniqueIds(result)
+    const data = resultWithUniqueIds
 
-    const data = { 'totalVisitsByDayOfWeek': result }
+    if (info === 'all')
+      {
+        const infoDateRange = { all: true, statistic: 'session_id' }
+        const resultDateRange = await readStatisticDateRange(_db, infoDateRange)
+    
+        const referrerDateRange = resultDateRange.map(element => {
+          return element['created_at']
+        })
+    
+        const [startDate, endDate] = referrerDateRange
 
-    return { 'status': 'ok', data }
+        return { 'status': 'ok', data, meta: { startDate, endDate } }
+      } else {
+        return { 'status': 'ok', data }
+      }
   } catch (error) {
     throw new Error(`Session Models Get Visits Count Total By Day Of Week ${error}`)
   }
