@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid'
-
 import {
   createPage,
   readPageStatisticDateRange,
@@ -25,14 +23,7 @@ import {
   readViewsCountTimeTotal,
 } from '../../services/v1/page-services.mjs'
 
-// Helper functions
-// Useful for items that come back from the database without and Id, e.g. anything resulting from a GROUP BY
-const addUniqueIds = data => {
-  const dataWithUniqueIds = data.map(element => {
-    return Object.assign({ id: uuidv4()}, element)
-  })
-  return dataWithUniqueIds
-}
+import { addUniqueIds } from '../../services/v1/aggregation-services.mjs'
 
 // Exports
 const getRoutesByBounceRate = async (_db, info) => {
