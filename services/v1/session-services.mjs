@@ -299,7 +299,7 @@ const readVisitsCountTotalByDayOfWeek = async (_db, info) => {
   if (info === 'all') {
     try {
       const [rows, fields] = await _db.execute(
-        'SELECT WEEKDAY(created_at) AS weekday, COUNT(*) AS count FROM sessions GROUP BY weekday ORDER BY weekday'
+        'SELECT WEEKDAY(created_at) AS weekday, COUNT(*) AS total_visits FROM sessions GROUP BY weekday ORDER BY weekday'
       )
       return rows && rows.length > 0 ? rows : -99
     } catch (error) {
