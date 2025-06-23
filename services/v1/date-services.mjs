@@ -22,6 +22,43 @@ const formatUTCDate = (dateObj, formatString) => {
   }
 }
 
+const getDateParts = (dateFormatted, format) => {
+  let dateDay = 0
+  let dateMonth = 0
+  let dateYear = 0
+
+  switch (format) {
+    case 'dateString':
+      const dateObj = new Date(dateFormatted)
+      dateDay = dateObj.getDay()
+      dateMonth = dateObj.getMonth()
+      dateYear = dateObj.getFullYear()
+    break
+    default:
+    case 'mysql':
+      const [dateValue] = dateFormatted.split('T')
+      [dateYear, dateMonth, dateDay] = dateValue.split('-')
+    break
+  }
+  return [parseInt(dateYear), parseInt(dateMonth), parseInt(dateDay)]
+}
+
+const getDaysBetween = (startDate, endDate, format) => {
+  const [endDateYear, endDateMonth, endDateDay] = getDateParts(endDate, format)
+  const [startDateYear, startDateMonth, startDateDay] = getDateParts(startDate , format)
+
+  const endDateJs = new Date(endDateYear, endDateMonth, endDateDay)
+  const startDateJs = new Date(startDateYear, startDateMonth, startDateDay)
+
+  const endDateTimestamp = parseInt(endDateJs.getTime() / 1000)
+  const startDateTimestamp = parseInt(startDateJs.getTime() / 1000)
+
+  const secondsDifference = endDateTimestamp - startDateTimestamp
+  const daysDifference = secondsDifference / 60 / 60 / 24
+
+  return daysDifference
+}
+
 const getPreviousPeriodDates = (startDate, endDate) => {
   const startDateJs = new Date(startDate)
   const endDateJs = new Date(endDate)
@@ -40,4 +77,10 @@ const getPreviousPeriodDates = (startDate, endDate) => {
   return { endDatePrevJs, startDatePrevJs }
 }
 
-export { formatQueryDateTimeMySql, formatUTCDate, getPreviousPeriodDates }
+export {
+  formatQueryDateTimeMySql,
+  formatUTCDate,
+  getDateParts,
+  getDaysBetween,
+  getPreviousPeriodDates
+}

@@ -1,6 +1,7 @@
 'use strict'
 import {
   acquireStatisticDateRange,
+  acquireVisitsCountAverageByDayOfWeek,
   acquireVisitsCountTotalByHour,
   addSession,
   readBounceRateTotal,
@@ -19,6 +20,7 @@ import {
 
 export default async function (fastify, opts) {
   fastify.get('/', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotal)
+  fastify.get('/average/by-day-of-week', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireVisitsCountAverageByDayOfWeek)
   fastify.get('/bounce-rate', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readBounceRateTotal)
   fastify.get('/by-day', { onRequest: fastify.auth([fastify.verifyAPIKey])}, readVisitsCountTotalByDay)
   fastify.get('/by-day-of-week', { onRequest: fastify.auth([fastify.verifyAPIKey])}, acquireVisitsCountTotalByDayOfWeek)

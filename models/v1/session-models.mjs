@@ -15,6 +15,7 @@ import {
 } from '../../services/v1/session-services.mjs'
 
 import { addUniqueIds } from '../../services/v1/aggregation-services.mjs'
+import { getDateParts, getDaysBetween } from '../../services/v1/date-services.mjs'
 
 // Exports
 const getLanguageCount = async (_db, info) => {
@@ -151,6 +152,66 @@ const getVisitsCountTotalByDayOfWeek = async (_db, info) => {
   }
 }
 
+const getVisitsCountAverageByDayOfWeek = async (_db, info) => {
+  try {
+    const result = await readVisitsCountTotalByDayOfWeek(_db, info)
+
+    if (info === 'all')
+      {
+        const infoDateRange = { all: true, statistic: 'session_id' }
+        const resultDateRange = await readStatisticDateRange(_db, infoDateRange)
+    
+        const referrerDateRange = resultDateRange.map(element => {
+          return element['created_at'] + ''
+        })
+
+        const [startDateJs, endDateJs] = referrerDateRange  // Remember mysql2 returns a JavaScript date string from date time fields
+
+        if (result?.length > 0) {
+          const totalDays = getDaysBetween(startDateJs, endDateJs, 'dateString')
+          const minNumberOfWeekdays = Math.floor(totalDays / 7)
+          const weekdaysOverMinimum = totalDays % 7
+        
+          const weekdays = Array(6)
+          if (weekdaysOverMinimum === 0) {
+            weekdays.fill(minNumberOfWeekdays)
+          } else {
+            const [startDateYear, startDateMonth, startDateDay] = getDateParts(startDateJs, 'dateString')
+            const startDateObj = new Date(startDateYear, startDateMonth, startDateDay)
+            const firstDayOfWeek = startDateObj.getDay()
+
+            for (let i = 0; i < 7; i++) {
+              const days = i < firstDayOfWeek ? minNumberOfWeekdays : minNumberOfWeekdays + 1
+              weekdays[i] = days
+            }
+          }
+        
+          // Because JavaScript weekdays start on Sunday and MySql starts on Monday
+          const weekdaysMySql = [...weekdays]
+          const sunday = weekdaysMySql.pop()
+          weekdaysMySql.unshift(sunday)
+
+          const dataWithAverage = result.map(element => {
+            const { weekday, 'total_visits': totalVisits } = element
+            const averageVisits = totalVisits / weekdaysMySql[weekday]
+            return Object.assign({ 'average_visits': averageVisits}, element)
+          })
+      
+          const resultWithUniqueIds = addUniqueIds(dataWithAverage)
+          const data = resultWithUniqueIds
+      
+          return { status: 'ok', data } //meta
+        } else {
+          // BLOW UP YOUR VIDEO
+        }
+      } else {
+        // Deal with a date range or whatever alternate info
+      }
+  } catch (error) {
+    throw new Error(`Session Models Get Visits Count Average By Day Of Week ${error}`)
+  }
+}
+
 const getVisitsCountTotalByHour = async (_db, info) => {
   try {
     const result = await readVisitsCountTotalByHour(_db, info)
@@ -214,6 +275,7 @@ export {
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
   getStatisticDateRange,
+  getVisitsCountAverageByDayOfWeek,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
   getVisitsCountTotalByDayOfWeek,
