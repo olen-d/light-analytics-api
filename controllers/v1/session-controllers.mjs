@@ -5,6 +5,7 @@ import {
   getSinglePageSessionsCountTotal,
   getSinglePageSessionsCountTotalByMonth,
   getStatisticDateRange,
+  getVisitsCountAverageByDayOfWeek,
   getVisitsCountTotal,
   getVisitsCountTotalByDay,
   getVisitsCountTotalByDayOfWeek,
@@ -67,6 +68,18 @@ async function acquireStatisticDateRange (request, reply) {
     reply.send(result)
   } catch (error) {
     throw new Error(`Session Controllers Acquire Statistic Date Range (${statistic}) ${error}`)
+  }
+}
+
+async function acquireVisitsCountAverageByDayOfWeek (request, reply) {
+  const { _db } = this
+  const info = 'all'
+
+  try {
+    const result = await getVisitsCountAverageByDayOfWeek(_db, info)
+    reply.send(result)
+  } catch (error) {
+    throw new Error(`Session Controllers Acquire Visits Count Average By Day Of Week ${error}`)
   }
 }
 
@@ -568,6 +581,7 @@ async function readVisitsCountUniqueByMonth (request, reply) {
 
 export {
   acquireStatisticDateRange,
+  acquireVisitsCountAverageByDayOfWeek,
   acquireVisitsCountTotalByHour,
   addSession,
   readBounceRateTotal,
